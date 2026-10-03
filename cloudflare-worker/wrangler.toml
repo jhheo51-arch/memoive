@@ -1,0 +1,7 @@
+name = "memoive-gemini"
+main = "src/index.js"
+compatibility_date = "2026-09-26"
+
+[vars]
+ALLOWED_ORIGIN = "https://memoive-private-20260926.sooyeon-jun-0389.chatgpt.site"
+GEMINI_MODEL = "gemini-3.5-flash-lite"

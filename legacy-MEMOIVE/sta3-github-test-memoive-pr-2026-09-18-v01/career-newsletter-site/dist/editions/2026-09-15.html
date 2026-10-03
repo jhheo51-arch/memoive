@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="2026년 9월 15일 기준 BA, Consultant, PM/PO 커리어 뉴스레터">
+  <title>Career Signal — 2026.09.15</title>
+  <style>
+    :root {
+      --blue: #3182f6;
+      --blue-dark: #1768d1;
+      --blue-soft: #eaf3ff;
+      --ink: #191f28;
+      --muted: #6b7684;
+      --line: #e5e8eb;
+      --surface: #f7f8fa;
+      --white: #fff;
+      --green: #0ca678;
+      --orange: #f08c00;
+      --purple: #7048e8;
+      --shadow: 0 18px 50px rgba(0, 27, 55, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.72;
+      word-break: keep-all;
+    }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #91c1ff; outline-offset: 3px; }
+    .reading-progress { position: fixed; inset: 0 auto auto 0; z-index: 50; width: 0; height: 4px; background: var(--blue); }
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      border-bottom: 1px solid rgba(229,232,235,.9);
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(16px);
+    }
+    .topbar-inner { max-width: 1120px; margin: 0 auto; padding: 15px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.02em; }
+    .brand-mark { width: 30px; height: 30px; border-radius: 10px; background: linear-gradient(145deg, #6aa8ff, #146fe3); transform: rotate(-8deg); box-shadow: 0 8px 20px rgba(49,130,246,.25); }
+    .topnav { display: flex; gap: 14px; overflow-x: auto; color: var(--muted); font-size: 13px; white-space: nowrap; scrollbar-width: none; }
+    .topnav::-webkit-scrollbar { display: none; }
+    .topnav a { text-decoration: none; }
+    .topnav a:hover { color: var(--ink); }
+    .hero { position: relative; overflow: hidden; padding: 108px 24px 90px; background: linear-gradient(180deg, #fff 0%, #f7fbff 100%); }
+    .hero::after { content: ""; position: absolute; width: 430px; height: 430px; right: -100px; top: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #bcd9ff 0, #4e94f7 35%, #165ec1 72%, #0a3b7c 100%); box-shadow: 0 50px 100px rgba(25,105,210,.2); opacity: .95; }
+    .hero-inner { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; }
+    .eyebrow { display: inline-flex; align-items: center; margin-bottom: 22px; color: var(--blue-dark); font-size: 14px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+    h1 { max-width: 760px; margin: 0; font-size: clamp(44px, 7vw, 76px); line-height: 1.08; letter-spacing: -.055em; }
+    .hero-copy { max-width: 680px; margin: 28px 0 0; color: #4e5968; font-size: clamp(18px, 2.2vw, 22px); line-height: 1.65; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+    .pill { display: inline-flex; align-items: center; min-height: 32px; padding: 5px 12px; border-radius: 999px; background: var(--white); border: 1px solid var(--line); color: #4e5968; font-size: 13px; font-weight: 650; }
+    main { max-width: 1120px; margin: 0 auto; padding: 0 24px 110px; }
+    .section { padding-top: 96px; }
+    .section-heading { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px 28px; margin-bottom: 36px; }
+    .kicker { margin: 0 0 10px; color: var(--blue); font-size: 14px; font-weight: 750; }
+    h2 { margin: 0; font-size: clamp(32px, 4vw, 48px); line-height: 1.2; letter-spacing: -.04em; }
+    .section-note { max-width: none; margin: 0; color: var(--muted); font-size: clamp(13px, 1.25vw, 15px); white-space: nowrap; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .summary-card { min-height: 230px; padding: 30px; border-radius: 24px; background: var(--surface); transition: transform .2s ease, box-shadow .2s ease; }
+    .summary-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .summary-card .number { display: block; margin-bottom: 28px; color: var(--blue); font-weight: 800; }
+    .summary-card strong { display: block; font-size: 21px; line-height: 1.45; letter-spacing: -.02em; }
+    .summary-card p { margin: 12px 0 0; color: var(--muted); font-size: 15px; }
+    .tabs { display: flex; gap: 8px; margin: 0 0 26px; overflow-x: auto; padding-bottom: 4px; }
+    .tab { border: 0; border-radius: 999px; padding: 10px 17px; background: var(--surface); color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .tab.active { background: var(--ink); color: var(--white); }
+    .story-list { display: grid; gap: 28px; }
+    .story { overflow: hidden; border: 1px solid var(--line); border-radius: 28px; background: var(--white); box-shadow: 0 6px 24px rgba(0,27,55,.04); }
+    .story-head { padding: 34px 38px 30px; background: linear-gradient(135deg, #f8fbff, #fff); border-bottom: 1px solid var(--line); }
+    .story-index { color: var(--blue); font-size: 14px; font-weight: 800; }
+    .story h3 { max-width: 830px; margin: 9px 0 12px; font-size: clamp(27px, 3vw, 38px); line-height: 1.28; letter-spacing: -.035em; }
+    .story-lead { max-width: 850px; margin: 0; color: #4e5968; font-size: 18px; }
+    .story-preview-fact { margin: 18px 0 0; padding: 14px 16px; border-left: 3px solid var(--green); border-radius: 0 10px 10px 0; background: #f5fbf8; color: #4e5968; font-size: 14px; }
+    .story-preview-fact strong { display: block; margin-bottom: 3px; color: var(--green); font-size: 12px; }
+    .story-toggle { display: inline-flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; margin-top: 24px; border: 0; border-radius: 13px; padding: 12px 15px; background: var(--surface); color: var(--blue-dark); font: inherit; font-size: 14px; font-weight: 750; cursor: pointer; }
+    .story-toggle:hover { background: var(--blue-soft); }
+    .story-toggle-icon { font-size: 20px; font-weight: 500; line-height: 1; }
+    .story.collapsed .story-body { display: none; }
+    .story.collapsed.open .story-body { display: grid; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 22px; }
+    .tag { padding: 5px 10px; border-radius: 8px; background: var(--blue-soft); color: var(--blue-dark); font-size: 12px; font-weight: 750; }
+    .tag.green { background: #e8f8f2; color: #087f5b; }
+    .tag.orange { background: #fff4e6; color: #c26a00; }
+    .tag.purple { background: #f1edff; color: #5f3dc4; }
+    .story-body { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 38px; padding: 34px 38px 38px; }
+    .block { min-width: 0; }
+    .block.wide { grid-column: 1 / -1; }
+    .block h4 { display: flex; align-items: center; gap: 9px; margin: 0 0 9px; font-size: 14px; letter-spacing: -.01em; }
+    .block h4::before { content: ""; flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+    .block.fact h4::before { background: var(--green); }
+    .block.interpret h4::before { background: var(--purple); }
+    .block.caution h4::before { background: var(--orange); }
+    .block p { margin: 0; color: #4e5968; font-size: 15.5px; }
+    .career-box { grid-column: 1 / -1; padding: 24px 26px; border-radius: 18px; background: #f2f7ff; }
+    .career-box h4 { color: var(--blue-dark); }
+    .career-box p { color: #31445c; }
+    .source-links { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 6px; }
+    .source-links a { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px; background: var(--surface); color: #4e5968; font-size: 13px; font-weight: 700; text-decoration: none; }
+    .source-links a:hover { background: var(--blue-soft); color: var(--blue-dark); }
+    .radar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .radar-card { padding: 28px; border-radius: 22px; border: 1px solid var(--line); }
+    .radar-card .role { display: inline-flex; margin-bottom: 20px; padding: 5px 11px; border-radius: 999px; background: var(--ink); color: var(--white); font-size: 13px; font-weight: 800; }
+    .radar-card h3 { margin: 0 0 12px; font-size: 22px; letter-spacing: -.025em; }
+    .radar-card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .actions { counter-reset: action; display: grid; gap: 12px; }
+    .action { counter-increment: action; display: grid; grid-template-columns: 48px 1fr; gap: 17px; align-items: start; padding: 22px 24px; border-radius: 18px; background: var(--surface); }
+    .action::before { content: counter(action); display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: var(--blue); color: white; font-weight: 800; }
+    .action strong { display: block; margin-bottom: 4px; }
+    .action p { margin: 0; color: var(--muted); }
+    .signal { padding: 36px; border-radius: 28px; background: var(--ink); color: white; }
+    .signal h3 { margin: 0 0 16px; font-size: 28px; letter-spacing: -.03em; }
+    .signal p { margin: 0; color: #d1d6db; }
+    .signal ol { margin: 22px 0 0; padding-left: 22px; color: #eef0f2; }
+    .signal li + li { margin-top: 8px; }
+    .counter-signal { margin-top: 22px !important; padding-top: 22px; border-top: 1px solid #3d4650; }
+    .quiz-shell { display: grid; gap: 18px; }
+    .quiz-card { margin: 0; padding: 28px 30px 30px; border: 1px solid var(--line); border-radius: 22px; background: var(--white); }
+    .quiz-card legend { width: 100%; padding: 0; font-size: 20px; font-weight: 800; line-height: 1.45; letter-spacing: -.02em; }
+    .quiz-number { display: inline-grid; place-items: center; width: 32px; height: 32px; margin-right: 9px; border-radius: 10px; background: var(--blue-soft); color: var(--blue-dark); font-size: 14px; }
+    .quiz-hint { margin: 10px 0 18px; color: var(--muted); font-size: 14px; }
+    .quiz-options { display: grid; gap: 9px; }
+    .quiz-option { display: flex; gap: 11px; align-items: flex-start; padding: 13px 15px; border: 1px solid #e5e8eb; border-radius: 13px; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+    .quiz-option:hover { border-color: #b8d5ff; background: #f8fbff; }
+    .quiz-option input { flex: 0 0 auto; margin-top: 4px; accent-color: var(--blue); }
+    .quiz-card.correct { border-color: #8fd5bd; background: #fbfffd; }
+    .quiz-card.incorrect { border-color: #f2a897; background: #fffdfc; }
+    .quiz-card.unanswered { border-color: #efc66f; }
+    .quiz-explanation { display: none; margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: var(--surface); color: #4e5968; font-size: 14px; }
+    .quiz-card.checked .quiz-explanation { display: block; }
+    .quiz-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+    .quiz-button { border: 0; border-radius: 12px; padding: 12px 18px; background: var(--blue); color: var(--white); font: inherit; font-weight: 750; cursor: pointer; }
+    .quiz-button:hover { background: var(--blue-dark); }
+    .quiz-button.secondary { border: 1px solid var(--line); background: var(--white); color: var(--muted); }
+    .quiz-result { min-height: 24px; margin-left: 4px; color: #333d4b; font-weight: 750; }
+    .archive-list { display: grid; gap: 12px; }
+    .edition-card { display: grid; grid-template-columns: 150px 1fr auto; gap: 22px; align-items: center; padding: 22px 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--white); text-decoration: none; }
+    .edition-card:hover { border-color: #b8d5ff; background: #fbfdff; }
+    .edition-date { color: var(--ink); font-size: 18px; font-weight: 800; }
+    .edition-title { color: #4e5968; }
+    .edition-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .edition-badge { padding: 5px 9px; border-radius: 8px; background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 750; }
+    .edition-badge.current { background: var(--blue-soft); color: var(--blue-dark); }
+    .evidence-list { border-top: 1px solid var(--line); }
+    .evidence-item { display: grid; grid-template-columns: 48px 1fr auto; gap: 18px; align-items: center; padding: 20px 4px; border-bottom: 1px solid var(--line); }
+    .evidence-num { color: #adb5bd; font-weight: 800; }
+    .evidence-item h3 { margin: 0 0 4px; font-size: 17px; }
+    .evidence-item p { margin: 0; color: var(--muted); font-size: 14px; }
+    .evidence-item a { color: var(--blue-dark); font-size: 13px; font-weight: 750; text-decoration: none; }
+    .database-shell { overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: var(--white); box-shadow: 0 8px 30px rgba(0,27,55,.05); }
+    .database-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 20px; border-bottom: 1px solid var(--line); background: #fbfcfd; }
+    .database-count { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .database-filters { display: flex; flex-wrap: wrap; gap: 7px; }
+    .db-filter { border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; background: var(--white); color: var(--muted); font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+    .db-filter.active { border-color: var(--ink); background: var(--ink); color: var(--white); }
+    .table-scroll { overflow-x: auto; }
+    .evidence-table { width: 100%; min-width: 1120px; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+    .evidence-table th { padding: 13px 14px; border-bottom: 1px solid var(--line); background: #f7f8fa; color: var(--muted); font-weight: 750; text-align: left; white-space: nowrap; }
+    .evidence-table td { padding: 15px 14px; border-bottom: 1px solid #eef0f2; vertical-align: middle; }
+    .evidence-table tbody tr:last-child td { border-bottom: 0; }
+    .evidence-table tbody tr:hover { background: #fbfdff; }
+    .evidence-table .title-cell { min-width: 245px; font-weight: 750; }
+    .evidence-table .title-cell a { text-decoration: none; }
+    .evidence-table .title-cell a:hover { color: var(--blue-dark); }
+    .status, .mini-tag { display: inline-flex; align-items: center; margin: 2px 3px 2px 0; border-radius: 7px; padding: 4px 8px; line-height: 1.25; white-space: nowrap; }
+    .status.cross { background: #dceeff; color: #2368a2; }
+    .status.body { background: #e6f4ed; color: #287555; }
+    .status.session { background: #fff2cc; color: #8a671d; }
+    .status.limit { background: #ffe3de; color: #a33d2d; }
+    .mini-tag { background: #eef1f4; color: #4e5968; }
+    .mini-tag.ba { background: #dceeff; color: #2368a2; }
+    .mini-tag.consultant { background: #e6f4ed; color: #287555; }
+    .mini-tag.pm { background: #ffebd9; color: #96603b; }
+    .mini-tag.core { background: #ffe3de; color: #a33d2d; }
+    .mini-tag.overseas { background: #eee5ff; color: #6741b5; }
+    .db-source { color: var(--blue-dark); font-weight: 750; text-decoration: none; white-space: nowrap; }
+    .db-source:hover { text-decoration: underline; }
+    footer { padding: 48px 24px 60px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 13px; }
+    .hide { display: none; }
+    @media (max-width: 900px) {
+      .hero::after { width: 260px; height: 260px; right: -130px; top: 40px; opacity: .45; }
+      .summary-grid, .radar { grid-template-columns: 1fr; }
+      .story-body { grid-template-columns: 1fr; }
+      .block.wide, .career-box { grid-column: auto; }
+      .section-heading { display: block; }
+      .section-note { max-width: 100%; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; }
+      .topnav { gap: 11px; font-size: 12px; }
+    }
+    @media (max-width: 620px) {
+      .topnav { display: none; }
+      .hero { padding: 78px 20px 62px; }
+      main { padding-inline: 18px; }
+      .section { padding-top: 72px; }
+      .story-head, .story-body { padding: 26px 22px; }
+      .quiz-card { padding: 23px 20px 24px; }
+      .edition-card { grid-template-columns: 1fr; gap: 8px; }
+      .edition-meta { justify-content: flex-start; }
+      .evidence-item { grid-template-columns: 34px 1fr; }
+      .evidence-item a { grid-column: 2; }
+    }
+    @media print {
+      .topbar, .reading-progress, .tabs, .story-toggle { display: none; }
+      .hero { padding: 42px 0; }
+      .hero::after { display: none; }
+      main { max-width: none; padding: 0; }
+      .section { padding-top: 42px; }
+      .story, .summary-card, .radar-card { break-inside: avoid; box-shadow: none; }
+      .story.collapsed .story-body { display: grid !important; }
+      a { text-decoration: underline; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress" id="progress" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Career Signal</div>
+      <nav class="topnav" aria-label="본문 바로가기">
+        <a href="../index.html">달력 홈</a><a href="#overview">3분 요약</a><a href="#deep-dive">심층분석</a><a href="#roles">직무 레이더</a><a href="#logic">논리 퀴즈</a><a href="#evidence">기타 자료</a><a href="#database">근거 DB</a><a href="#archive">지난 뉴스레터</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Weekly career intelligence</div>
+      <h1>AI 시대,<br>업무를 설계하는 사람</h1>
+      <p class="hero-copy">이번 주의 신호는 분명합니다. 좋은 모델보다 중요한 것은 업무 맥락, 권한, 검증, 그리고 결과가 다시 개선으로 이어지는 운영 구조입니다.</p>
+      <div class="meta"><span class="pill">기준일 2026.09.15</span><span class="pill">최근 7일</span><span class="pill">BA</span><span class="pill">Consultant</span><span class="pill">PM/PO</span></div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section" id="overview">
+      <div class="section-heading"><div><p class="kicker">3-minute overview</p><h2>이번 주, 이것만은</h2></div><p class="section-note">세 가지 흐름을 먼저 읽고, 관심 있는 직무 태그로 심층분석을 골라보세요.</p></div>
+      <div class="summary-grid">
+        <article class="summary-card"><span class="number">01</span><strong>AI 경쟁의 중심이 모델에서 통제로 이동</strong><p>기업 데이터, 권한, 행동, 비용을 함께 관리하는 공통 운영 계층이 새로운 경쟁 지점입니다.</p></article>
+        <article class="summary-card"><span class="number">02</span><strong>데이터의 양보다 학습 순환의 속도</strong><p>어려운 사례를 골라 검증하고 결과를 다시 학습에 넣는 구조가 실제 성능을 만듭니다.</p></article>
+        <article class="summary-card"><span class="number">03</span><strong>직무 언어는 문제→데이터→실행→성과</strong><p>BA·Consultant·PM/PO 모두 기능 설명보다 업무 변화와 측정 기준을 연결해야 합니다.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="deep-dive">
+      <div class="section-heading"><div><p class="kicker">Deep dive</p><h2>핵심 5개 심층분석</h2></div><p class="section-note">핵심만 먼저 보고, 필요한 항목만 펼쳐보세요.</p></div>
+      <div class="tabs" role="group" aria-label="직무별 자료 필터">
+        <button class="tab active" data-filter="all">전체</button><button class="tab" data-filter="ba">BA</button><button class="tab" data-filter="consultant">Consultant</button><button class="tab" data-filter="pm">PM/PO</button>
+      </div>
+      <div class="story-list">
+        <article class="story" data-roles="ba consultant pm">
+          <div class="story-head"><span class="story-index">01 · Enterprise AI</span><h3>Salesforce Enterprise AI Harness</h3><p class="story-lead">CRM을 여러 AI 에이전트가 안전하게 일하는 ‘업무 통제 기반’으로 확장합니다.</p><div class="tags"><span class="tag">BA</span><span class="tag green">Consultant</span><span class="tag orange">PM/PO</span><span class="tag purple">해외</span></div></div>
+          <div class="story-body">
+            <div class="block wide"><h4>무엇이 달라졌나</h4><p>Agentforce·Data 360·MuleSoft가 따로 맡던 에이전트 구축, 데이터 연결, 시스템 연동 기능을 하나의 기업 AI 운영 구조로 묶었습니다. 경쟁 단위가 개별 기능에서 여러 모델과 에이전트를 통제하는 공통 계층으로 커졌습니다.</p></div>
+            <div class="block fact"><h4>확인된 사실</h4><p>Salesforce는 맥락·자율성·실행·거버넌스·보안·모델의 여섯 역량과 AI Control Plane을 제시했습니다. 주문 이행 사례에서는 CRM, ERP, 계약, 분석, 정책을 결합하며 제3자 모델·에이전트·시스템도 관리한다고 밝혔습니다.</p></div>
+            <div class="block interpret"><h4>Codex의 해석</h4><p>에이전트가 사람 대신 여러 시스템을 조작하면 경쟁력은 답변 문장보다 데이터 의미, 읽기·쓰기 권한, 승인 지점, 감사기록을 설계하는 능력에서 생깁니다. CRM은 화면 도구에서 업무 판단의 기반으로 확장될 수 있습니다.</p></div>
+            <div class="block wide"><h4>사업·업무 구조</h4><p>주문 처리 판단에는 고객 등급, ERP 재고, 계약상 약정, 승인 정책이 동시에 필요합니다. 여러 시스템의 데이터를 같은 업무 의미로 연결하고, 허용된 행동만 수행하게 하며, 오류·비용·결과를 추적하는 흐름이 핵심입니다.</p></div>
+            <div class="block wide"><h4>직무 영향</h4><p><b>BA</b>는 데이터 정의와 예외·승인 규칙을 요구사항으로 바꿉니다. <b>Consultant</b>는 시스템 지도와 통합 우선순위·위험·로드맵을 설계합니다. <b>PM/PO</b>는 성공률, 사람 이관률, 잘못된 실행률, 처리시간, 실행당 비용을 관리합니다.</p></div>
+            <div class="career-box"><h4>내 커리어 활용 포인트 · 포트폴리오</h4><p>CRM 프로세스를 <b>데이터 출처 → 업무 규칙 → AI 행동 → 사람 승인 → 결과 KPI</b>의 한 장짜리 흐름도로 표현해 보세요.</p></div>
+            <div class="block"><h4>데이터 분석 질문</h4><p>고객군·업무 유형별 오류율과 사람 개입 후 개선폭은 어떻게 다른가?</p></div>
+            <div class="block caution"><h4>근거 한계</h4><p>향후 제공 기능의 실제 일정과 독립적인 고객 성과는 아직 검증이 필요합니다.</p></div>
+            <div class="block wide source-links"><a href="https://www.salesforce.com/ap/news/press-releases/2026/09/11/salesforce-introduces-the-trusted-enterprise-ai-harness/?bc=OTH">Salesforce 원문 ↗</a><a href="https://www.techtarget.com/it-strategy/news/366650256/Salesforce-Enterprise-AI-Harness-latest-salvo-aimed-at-ServiceNow">TechTarget 분석 ↗</a></div>
+          </div>
+        </article>
+
+        <article class="story" data-roles="ba consultant pm">
+          <div class="story-head"><span class="story-index">02 · Governance</span><h3>AI에 대한 자신감과 실제 통제의 간격</h3><p class="story-lead">도입의 병목은 시연이 아니라 에이전트를 찾아내고 시험하고 차단하고 되돌릴 수 있는 증거입니다.</p><div class="tags"><span class="tag">BA</span><span class="tag green">Consultant</span><span class="tag orange">PM/PO</span><span class="tag purple">해외</span></div></div>
+          <div class="story-body">
+            <div class="block wide"><h4>무엇이 달라졌나</h4><p>개인정보 입력 제한과 답변 검토 중심의 거버넌스에서, 배포 전 평가·에이전트 목록·권한·비용·장애 복구까지 소프트웨어 운영 수준으로 통제 범위가 넓어졌습니다.</p></div>
+            <div class="block fact"><h4>확인된 사실</h4><p>Harness가 AI 에이전트를 운영하는 700개 조직을 조사한 결과, 종단 간 보안 자신감은 75%였지만 전용 보안 계층 운영은 23%였습니다. 전체 에이전트 파악 자신감은 77%, 실제 탐지·목록 도구 운영은 44%였습니다. 평가 자신감은 74%였지만 잘못된 배포 자동 차단은 19%였습니다.</p></div>
+            <div class="block interpret"><h4>Codex의 해석</h4><p>기업은 AI 아이디어를 많이 내는 사람보다 “어떤 증거가 있어야 안전하고 가치 있다고 판단할 수 있는가”를 정의하는 사람을 필요로 할 가능성이 큽니다. 수용 기준과 지표가 부가 문서가 아니라 통제 수단이 됩니다.</p></div>
+            <div class="block wide"><h4>사업·업무 구조</h4><p>신규 에이전트 등록 → 데이터·도구·권한 지정 → 시험 시나리오 통과 → 운영 배포 → 성과·오류 감시 → 중지·복구가 한 흐름으로 연결돼야 합니다. 연결이 끊기면 담당자의 자신감이 검증을 대신합니다.</p></div>
+            <div class="block wide"><h4>직무 영향</h4><p><b>BA</b>는 정상·오류·권한초과·데이터 부족 시나리오와 수용 기준을 정의합니다. <b>Consultant</b>는 책임, 위험등급, 승인·감사 체계를 설계합니다. <b>PM/PO</b>는 배포 관문, 회귀시험, 중단 조건, 복구시간과 비용 대비 성과를 관리합니다.</p></div>
+            <div class="career-box"><h4>내 커리어 활용 포인트 · 면접</h4><p>“AI 기능을 무엇부터 검증하겠는가?”에 정확도만 말하지 말고 <b>목록관리·권한·시험·운영지표·복구</b>의 다섯 축으로 답해 보세요.</p></div>
+            <div class="block"><h4>데이터 분석 질문</h4><p>위험등급별 사고율, 자동 차단률, 평균 복구시간, 사람 검토가 줄인 손실은 얼마인가?</p></div>
+            <div class="block caution"><h4>근거 한계</h4><p>관련 솔루션 공급사가 수행한 조사이므로 시장 확정값보다 통제 격차의 신호로 봐야 합니다.</p></div>
+            <div class="block wide source-links"><a href="https://www.harness.io/blog/the-ai-agent-confidence-gap">Harness 조사 원문 ↗</a><a href="https://www.itpro.com/software/development/agents-have-hit-the-mainstream-in-software-engineering-but-security-and-governance-practices-arent-evolving-fast-enough">ITPro 보도 ↗</a></div>
+          </div>
+        </article>
+
+        <article class="story" data-roles="ba consultant pm">
+          <div class="story-head"><span class="story-index">03 · Mobility</span><h3>현대차그룹 Data Flywheel</h3><p class="story-lead">자율주행 경쟁 단위를 기능에서 실제 데이터를 통한 반복 학습 속도로 바꿉니다.</p><div class="tags"><span class="tag">BA</span><span class="tag green">Consultant</span><span class="tag orange">PM/PO</span><span class="tag">국내</span></div></div>
+          <div class="story-body">
+            <div class="block wide"><h4>무엇이 달라졌나</h4><p>단기에는 검증된 NVIDIA 기술로 양산 속도를 높이고, 장기에는 자체 Atria AI와 데이터 자산을 축적합니다. 외부 기술과 내부 역량을 양자택일이 아니라 서로 다른 시간축의 포트폴리오로 관리합니다.</p></div>
+            <div class="block fact"><h4>확인된 사실</h4><p>NVIDIA 기반 L2+는 2028년 상반기, L2++는 하반기, 자체 Atria AI 기반 L2++는 2029년 하반기 양산 목표입니다. 연간 700만 대 이상을 약 190개 지역에서 판매하며, 약 40대의 전용 차량을 24시간 운행해 데이터를 수집합니다. 어려운 사례 선별, 지속학습, 가상검증도 공개했습니다.</p></div>
+            <div class="block interpret"><h4>Codex의 해석</h4><p>제조업 AI는 연구실 모델보다 데이터 운영망과 검증 프로세스에서 차별화됩니다. 제품 기능 자체보다 데이터가 개선으로 되돌아오는 순환을 설계하는 능력이 세 직무 모두에서 중요해집니다.</p></div>
+            <div class="block wide"><h4>사업·업무 구조</h4><p>차량 데이터 생성 → 어려운 사례 선별 → 모델 학습 → 실제·가상 검증 → 승인된 모델 배포 → 새 데이터 생성이 반복됩니다. 데이터 양뿐 아니라 개인정보, 지역별 도로 차이, 센서 표준, 안전 검증을 함께 관리해야 합니다.</p></div>
+            <div class="block wide"><h4>직무 영향</h4><p><b>BA</b>는 주행 이벤트·오류 유형·데이터 표준·검증 기준을 정의합니다. <b>Consultant</b>는 외부 플랫폼과 자체 기술의 역할·비용·위험을 비교합니다. <b>PM/PO</b>는 엣지케이스 발견률, 학습주기, 회귀오류, 배포시간, 안전개입률을 관리합니다.</p></div>
+            <div class="career-box"><h4>내 커리어 활용 포인트 · 기업분석</h4><p><b>데이터 확보 → 어려운 사례 선별 → 검증 → 배포 → 새 데이터</b>로 도식화하고 각 단계의 담당 조직과 KPI를 가정해 보세요.</p></div>
+            <div class="block"><h4>데이터 분석 질문</h4><p>새 학습 이후 동일 유형의 안전 개입률과 회귀오류가 얼마나 줄었는가?</p></div>
+            <div class="block caution"><h4>근거 한계</h4><p>일정과 운영 규모는 회사 발표이며 실제 안전성과 경쟁사 대비 성과는 독립 검증이 필요합니다.</p></div>
+            <div class="block wide source-links"><a href="https://www.hyundaimotorgroup.com/en/news/hyundai-motor-group-accelerates-autonomous-driving-innovation-with-ai-powered-data-flywheel">현대차그룹 원문 ↗</a></div>
+          </div>
+        </article>
+
+        <article class="story" data-roles="ba consultant pm">
+          <div class="story-head"><span class="story-index">04 · Career signal</span><h3>LG CNS가 말하는 AX 인재</h3><p class="story-lead">기술을 아는 데서 끝나지 않고 고객의 사업 문제를 구현·검증·운영까지 연결해야 합니다.</p><div class="tags"><span class="tag">BA</span><span class="tag green">Consultant</span><span class="tag orange">PM/PO</span><span class="tag">국내</span></div></div>
+          <div class="story-body">
+            <div class="block wide"><h4>무엇이 달라졌나</h4><p>AI, 컨설팅, DX 엔지니어, ERP, 스마트팩토리 등 9개 직무가 하나의 AX 사업 흐름 안에서 연결됩니다. 생성형 AI 활용과 글로벌 산업·기술 흐름 이해가 특정 개발자만이 아닌 공통 업무역량으로 이동했습니다.</p></div>
+            <div class="block fact"><h4>확인된 사실</h4><p>AI 직무는 금융·공공·제조·물류 고객에 맞는 모델과 에이전틱 서비스를 설계·구현합니다. 컨설팅은 비즈니스 이슈를 분석해 AX/DX 전략을 만들고, DX 엔지니어는 핵심 시스템과 서비스를 개발합니다. 회사는 약 300명의 AI 전문가, 11개 역할, 컨설팅부터 운영까지의 전 과정을 설명합니다.</p></div>
+            <div class="block interpret"><h4>Codex의 해석</h4><p>직무의 핵심은 기술 이름을 나열하는 것이 아니라 산업과 업무를 이해하고 고객과 기술팀 사이를 연결하는 능력입니다. 문제정의·요구사항·구현·성과측정을 하나의 이야기로 묶는 사람이 유리합니다.</p></div>
+            <div class="block wide"><h4>사업·업무 구조</h4><p>고객 문제 진단 → 목표 업무·지표 정의 → CRM·ERP·업무시스템 데이터 연결 → AI 서비스 구현·시험 → 운영 성과 관리로 이어집니다. 가치 증명 기준이 초기 기획에 포함돼야 합니다.</p></div>
+            <div class="block wide"><h4>직무 영향</h4><p><b>BA</b>는 요구사항, 현행·목표 프로세스, 데이터 정의, UAT, KPI를 다룹니다. <b>Consultant</b>는 산업 문제와 투자 논리, 단계별 로드맵, 변화관리를 설계합니다. <b>PM/PO</b>는 실험을 서비스로 전환하고 사용자 채택·업무시간·정확도·운영비용을 관리합니다.</p></div>
+            <div class="career-box"><h4>내 커리어 활용 포인트 · 면접</h4><p>답변을 <b>산업 문제를 이해한 방법 → 시스템 요구사항으로 번역한 과정 → 지표로 결과를 확인한 방법</b>의 순서로 구성해 보세요.</p></div>
+            <div class="block"><h4>데이터 분석 질문</h4><p>모델 정확도 외에 채택률, 처리시간, 재작업률, 예외 처리율로 AX 가치를 어떻게 측정할까?</p></div>
+            <div class="block caution"><h4>근거 한계</h4><p>회사 관점의 직무·사업 설명이므로 실제 업무 비중은 현직자 사례로 보완할 가치가 있습니다.</p></div>
+            <div class="block wide source-links"><a href="https://lg.co.kr/media/release/30555">LG 채용 발표 ↗</a><a href="https://www.lgcns.com/en/careers/jobs/AI">LG CNS AI 직무 ↗</a></div>
+          </div>
+        </article>
+
+        <article class="story" data-roles="ba consultant pm">
+          <div class="story-head"><span class="story-index">05 · Conference</span><h3>IBM DDAC의 맥락 엔지니어링</h3><p class="story-lead">정적인 프롬프트가 아니라 실시간 업무 맥락을 계속 갱신되는 데이터 제품으로 관리합니다.</p><div class="tags"><span class="tag">BA</span><span class="tag green">Consultant</span><span class="tag orange">PM/PO</span><span class="tag purple">해외</span></div></div>
+          <div class="story-body">
+            <div class="block wide"><h4>무엇이 달라졌나</h4><p>문서나 검색 결과를 질문 시점에 붙이는 방식에서, 운영 데이터베이스·API·벡터 저장소의 정보를 계속 계산해 제공하는 방식으로 맥락 관리가 확장됩니다.</p></div>
+            <div class="block fact"><h4>확인된 사실</h4><p>IBM은 9월 14~16일 Disney Data &amp; Analytics Conference에서 스트리밍·이벤트 기반 맥락 엔지니어링을 안내했습니다. US Open 사례는 수백만 개 실시간·과거 데이터와 매 포인트 뒤 갱신되는 승리 가능성을, 놀이공원 데모는 Kafka 데이터를 별도 ETL 없이 SQL로 활용하는 구성을 소개합니다.</p></div>
+            <div class="block interpret"><h4>Codex의 해석</h4><p>앞으로 요구사항은 “어떤 화면을 만들 것인가”를 넘어 “결정 시점에 어떤 맥락이 얼마나 신선해야 하는가”를 포함해야 합니다. 실시간화 비용과 의사결정 가치의 균형도 제품·컨설팅 과제가 됩니다.</p></div>
+            <div class="block wide"><h4>사업·업무 구조</h4><p>고객·재고·정책·실시간 이벤트가 같은 시점 기준으로 조합돼야 합니다. 데이터 지연, 정의 불일치, 권한 누락이 있으면 모델이 좋아도 잘못 판단하므로 소유자, 갱신주기, 허용 지연, 실패 시 대체 흐름이 필요합니다.</p></div>
+            <div class="block wide"><h4>직무 영향</h4><p><b>BA</b>는 업무 용어·출처·갱신주기·정합성 규칙을 정의합니다. <b>Consultant</b>는 실시간화가 가치 있는 의사결정과 배치 처리로 충분한 영역을 구분합니다. <b>PM/PO</b>는 데이터 신선도, 응답 지연, 추천 수용률, 잘못된 조치율을 관리합니다.</p></div>
+            <div class="career-box"><h4>내 커리어 활용 포인트 · 학습</h4><p>한 CRM 업무에서 <b>실시간 정보와 하루 한 번 갱신해도 되는 정보</b>를 나누고, 데이터가 늦거나 없을 때의 대체 흐름을 작성해 보세요.</p></div>
+            <div class="block"><h4>데이터 분석 질문</h4><p>실시간화 전후 의사결정 지연과 고객 이탈·대기시간 개선이 추가 비용보다 큰가?</p></div>
+            <div class="block caution"><h4>근거 한계</h4><p>공식 세션 소개와 예정 데모를 확인한 단계이며 발표 결과는 자료 공개 후 후속 확인이 필요합니다.</p></div>
+            <div class="block wide source-links"><a href="https://www.ibm.com/events/ddac">IBM DDAC 공식 프로그램 ↗</a></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="roles">
+      <div class="section-heading"><div><p class="kicker">Role radar</p><h2>직무별 이번 주 신호</h2></div><p class="section-note">같은 변화도 맡은 역할에 따라 해야 할 일이 달라집니다.</p></div>
+      <div class="radar">
+        <article class="radar-card"><span class="role">BA</span><h3>규칙과 예외를 명확하게</h3><p>AI가 판단하기 전에 필요한 데이터·업무 규칙·예외·승인 조건을 정의하세요. 정상 흐름뿐 아니라 데이터 누락·중복·권한 오류·사람 이관 시나리오가 준비 우선순위입니다.</p></article>
+        <article class="radar-card"><span class="role">Consultant</span><h3>기술 목록을 운영모델로</h3><p>현행 문제 → 목표 업무 → 데이터·시스템 → 위험통제 → KPI로 이어지는 AX 로드맵을 만드세요. 외부 플랫폼과 자체 역량, 실시간화의 비용과 가치를 함께 비교해야 합니다.</p></article>
+        <article class="radar-card"><span class="role">PM/PO</span><h3>출시보다 안전한 학습 순환</h3><p>에이전트 행동의 성공·오류·이관·비용과 데이터 신선도를 제품 지표로 관리하세요. 목표지표와 보호지표, 중단·복구 조건을 한 묶음으로 정의하는 것이 핵심입니다.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="actions">
+      <div class="section-heading"><div><p class="kicker">This week's action</p><h2>이번 주, 세 가지만</h2></div></div>
+      <div class="actions">
+        <div class="action"><div><strong>CRM 사례를 여섯 단계로 다시 쓰기</strong><p>문제 → 데이터 → 업무 규칙 → 자동화 행동 → 사람 승인 → 성과지표</p></div></div>
+        <div class="action"><div><strong>포트폴리오에 실패 시나리오 추가하기</strong><p>데이터 누락, 잘못된 배정, 권한초과 때의 처리 기준을 한 표로 정리합니다.</p></div></div>
+        <div class="action"><div><strong>90초 면접 답변 준비하기</strong><p>산업 문제 이해 → 시스템 요구사항 번역 → 대시보드로 결과 확인을 한 흐름으로 연결합니다.</p></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="signal"><h3>다섯 신호가 가리키는 한 방향</h3><p>AI 경쟁력은 모델 자체에서 <b>업무 맥락을 정확히 조합하고, 허용된 행동만 수행하며, 결과를 측정하고 다시 개선하는 운영체계</b>로 이동하고 있습니다.</p><ol><li>CRM 경험을 기능 목록이 아니라 데이터·업무 규칙·의사결정의 연결로 표현해야 합니다.</li><li>세 직무 모두 검증 기준, 예외처리, KPI 설계 능력으로 차별화할 수 있습니다.</li><li>자격과 기술 지식은 출발점이며 고객 문제를 시스템과 성과로 연결한 사례가 경쟁력입니다.</li></ol><p class="counter-signal"><b>반대 신호:</b> 기업 발표는 통제와 맥락을 강조하지만 실제 운영 장치는 아직 뒤처져 있습니다. 안정적 정착 단계라기보다, 도입 속도에 비해 운영 역량이 부족해 이를 설계할 사람이 필요한 단계에 가깝습니다.</p></div>
+    </section>
+
+    <section class="section" id="logic">
+      <div class="section-heading"><div><p class="kicker">Thinking quiz</p><h2>이번 주 논리 퀴즈</h2></div><p class="section-note">세 문제로 사실·전제·결론을 가볍게 구분해보세요.</p></div>
+      <form class="quiz-shell" id="logic-quiz">
+        <fieldset class="quiz-card" data-answer="b">
+          <legend><span class="quiz-number">1</span>다음 중 자료에서 직접 확인된 사실은 무엇인가요?</legend>
+          <p class="quiz-hint">해석이나 전망이 아니라, 출처에서 수치로 확인된 문장을 고르세요.</p>
+          <div class="quiz-options"><label class="quiz-option"><input type="radio" name="q1" value="a">기업 AI의 성패는 모든 산업에서 모델보다 운영 구조가 결정한다.</label><label class="quiz-option"><input type="radio" name="q1" value="b">Harness 조사에서 종단 간 보안 자신감은 75%였지만 전용 보안 계층 운영은 23%였다.</label><label class="quiz-option"><input type="radio" name="q1" value="c">AI 통제 도구를 도입하면 기업의 수익성이 반드시 높아진다.</label></div>
+          <div class="quiz-explanation"><strong>정답: B</strong> — 조사에 제시된 수치이므로 확인된 사실입니다. A는 여러 자료를 연결한 해석이고, C는 자료로 입증되지 않은 인과관계입니다.</div>
+        </fieldset>
+        <fieldset class="quiz-card" data-answer="b">
+          <legend><span class="quiz-number">2</span>“운영 설계가 모델 성능보다 중요하다”는 결론에 필요한 숨은 전제는 무엇인가요?</legend>
+          <p class="quiz-hint">근거와 결론 사이를 이어주지만 직접 증명되지는 않은 생각을 찾으세요.</p>
+          <div class="quiz-options"><label class="quiz-option"><input type="radio" name="q2" value="a">기업이 발표한 자료는 항상 객관적이다.</label><label class="quiz-option"><input type="radio" name="q2" value="b">운영 통제와 학습 순환의 개선이 실제 도입 성과에 모델의 추가 향상보다 큰 영향을 준다.</label><label class="quiz-option"><input type="radio" name="q2" value="c">AI 업무의 성과는 BA 한 사람이 책임진다.</label></div>
+          <div class="quiz-explanation"><strong>정답: B</strong> — 이 전제가 참이어야 운영 설계의 우선순위가 높다는 결론으로 이어집니다. A와 C는 필요하지도 않고 타당하지도 않은 전제입니다.</div>
+        </fieldset>
+        <fieldset class="quiz-card" data-answer="c">
+          <legend><span class="quiz-number">3</span>현재 근거로 내릴 수 있는 가장 논리적인 결론은 무엇인가요?</legend>
+          <p class="quiz-hint">근거의 한계를 인정하면서도 자료가 보여주는 신호를 놓치지 않는 답을 고르세요.</p>
+          <div class="quiz-options"><label class="quiz-option"><input type="radio" name="q3" value="a">이제 모델 성능은 기업 AI에서 전혀 중요하지 않다.</label><label class="quiz-option"><input type="radio" name="q3" value="b">기업 발표가 포함됐으므로 어떤 결론도 내릴 수 없다.</label><label class="quiz-option"><input type="radio" name="q3" value="c">운영 설계가 중요한 병목으로 떠오르고 있지만, 실제 성과 비교가 쌓일 때까지 조건부로 판단해야 한다.</label></div>
+          <div class="quiz-explanation"><strong>정답: C</strong> — 자료가 가리키는 공통 방향은 받아들이되, 공급사 발표 비중과 독립 검증 부족을 결론의 범위에 함께 반영했습니다.</div>
+        </fieldset>
+        <div class="quiz-actions"><button class="quiz-button" type="button" id="quiz-check">정답 확인</button><button class="quiz-button secondary" type="reset" id="quiz-reset">다시 풀기</button><span class="quiz-result" id="quiz-result" aria-live="polite"></span></div>
+      </form>
+    </section>
+
+    <section class="section" id="evidence">
+      <div class="section-heading"><div><p class="kicker">More signals</p><h2>기타 자료</h2></div><p class="section-note">핵심에 들지 못했지만 다음 변화를 추적할 가치가 있는 자료입니다.</p></div>
+      <div class="evidence-list">
+        <article class="evidence-item"><span class="evidence-num">01</span><div><h3>TSA Agentforce 고객응대 사례</h3><p>월 약 10만 건, 일상 문의 96% 무이관 처리라는 공급사 발표. 독립 검증 부족으로 추가 분류.</p></div><a href="https://www.salesforce.com/news/press-releases/2026/09/14/tsa-improves-travel-experience-agentforce/">원문 ↗</a></article>
+        <article class="evidence-item"><span class="evidence-num">02</span><div><h3>Salesforce 직무형 AI 에이전트</h3><p>영업·서비스·커머스·직원경험·백오피스별 에이전트와 연결형 업무를 발표.</p></div><a href="https://www.salesforce.com/uk/news/stories/agentforce-job-ready-ai-agents/?bc=OTH">원문 ↗</a></article>
+        <article class="evidence-item"><span class="evidence-num">03</span><div><h3>Notion AI 모델 통제</h3><p>관리자가 Notion Agent와 Custom Agents의 허용 모델과 기본 모델을 정하는 기능.</p></div><a href="https://www.notion.com/releases/2026-09-09">원문 ↗</a></article>
+        <article class="evidence-item"><span class="evidence-num">04</span><div><h3>revAlation 2026</h3><p>데이터 거버넌스·규제준수·신뢰 데이터와 AI 에이전트 운영 전환을 다루는 행사 예고.</p></div><a href="https://www.alation.com/news-and-press/leaders-from-ally-financial-bbc-electronic-arts-flutter-and-veolia-to-present-at-alations-revalation-2026-conference-series/">원문 ↗</a></article>
+        <article class="evidence-item"><span class="evidence-num">05</span><div><h3>TDWI Data &amp; AI Leaders Summit</h3><p>데이터 기반, 거버넌스, 투자수익률, 변화관리를 함께 다루는 9월 21~23일 행사.</p></div><a href="https://tdwi.org/events/executive-summits/anaheim/home.aspx">원문 ↗</a></article>
+      </div>
+    </section>
+
+    <section class="section" id="database">
+      <div class="section-heading"><div><p class="kicker">Evidence database</p><h2>근거자료 전체보기</h2></div></div>
+      <div class="database-shell">
+        <div class="database-toolbar">
+          <div class="database-filters" role="group" aria-label="근거자료 필터">
+            <button class="db-filter active" data-db-filter="all">전체</button>
+            <button class="db-filter" data-db-filter="핵심">핵심</button>
+            <button class="db-filter" data-db-filter="추가">추가</button>
+            <button class="db-filter" data-db-filter="국내">국내</button>
+            <button class="db-filter" data-db-filter="해외">해외</button>
+          </div>
+          <span class="database-count" id="database-count" aria-live="polite">10개 자료</span>
+        </div>
+        <div class="table-scroll" tabindex="0" aria-label="근거자료 표, 작은 화면에서는 좌우로 스크롤할 수 있습니다">
+          <table class="evidence-table">
+            <thead><tr><th scope="col">자료명</th><th scope="col">검증상태</th><th scope="col">게시·행사일</th><th scope="col">관련직무</th><th scope="col">활용방식</th><th scope="col">구분</th><th scope="col">국내외</th><th scope="col">원문</th></tr></thead>
+            <tbody>
+              <tr data-kind="핵심" data-region="해외"><td class="title-cell"><a href="https://www.salesforce.com/ap/news/press-releases/2026/09/11/salesforce-introduces-the-trusted-enterprise-ai-harness/?bc=OTH">Salesforce Enterprise AI Harness</a></td><td><span class="status cross">교차 확인</span></td><td>2026.09.11</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">포트폴리오</span><span class="mini-tag">기업분석</span></td><td><span class="mini-tag core">핵심</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.salesforce.com/ap/news/press-releases/2026/09/11/salesforce-introduces-the-trusted-enterprise-ai-harness/?bc=OTH">원문 ↗</a></td></tr>
+              <tr data-kind="추가" data-region="해외"><td class="title-cell"><a href="https://www.salesforce.com/uk/news/stories/agentforce-job-ready-ai-agents/?bc=OTH">Salesforce 직무형 AI 에이전트</a></td><td><span class="status body">본문 확인</span></td><td>2026.09.11</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">학습</span><span class="mini-tag">기업분석</span></td><td><span class="mini-tag">추가</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.salesforce.com/uk/news/stories/agentforce-job-ready-ai-agents/?bc=OTH">원문 ↗</a></td></tr>
+              <tr data-kind="추가" data-region="해외"><td class="title-cell"><a href="https://tdwi.org/events/executive-summits/anaheim/home.aspx">TDWI Data &amp; AI Leaders Summit</a></td><td><span class="status session">세션 소개 확인</span></td><td>2026.09.21</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">학습</span><span class="mini-tag">기업분석</span></td><td><span class="mini-tag">추가</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://tdwi.org/events/executive-summits/anaheim/home.aspx">원문 ↗</a></td></tr>
+              <tr data-kind="추가" data-region="해외"><td class="title-cell"><a href="https://www.notion.com/releases/2026-09-09">Notion AI 모델 통제</a></td><td><span class="status body">본문 확인</span></td><td>2026.09.09</td><td><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">기업분석</span></td><td><span class="mini-tag">추가</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.notion.com/releases/2026-09-09">원문 ↗</a></td></tr>
+              <tr data-kind="핵심" data-region="국내"><td class="title-cell"><a href="https://lg.co.kr/media/release/30555">LG CNS AX 직무 신호</a></td><td><span class="status cross">교차 확인</span></td><td>2026.09.10</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">면접</span><span class="mini-tag">기업분석</span></td><td><span class="mini-tag core">핵심</span></td><td><span class="mini-tag">국내</span></td><td><a class="db-source" href="https://lg.co.kr/media/release/30555">원문 ↗</a></td></tr>
+              <tr data-kind="추가" data-region="해외"><td class="title-cell"><a href="https://www.alation.com/news-and-press/leaders-from-ally-financial-bbc-electronic-arts-flutter-and-veolia-to-present-at-alations-revalation-2026-conference-series/">revAlation 2026 콘퍼런스</a></td><td><span class="status session">세션 소개 확인</span></td><td>2026.09.17</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">학습</span></td><td><span class="mini-tag">추가</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.alation.com/news-and-press/leaders-from-ally-financial-bbc-electronic-arts-flutter-and-veolia-to-present-at-alations-revalation-2026-conference-series/">원문 ↗</a></td></tr>
+              <tr data-kind="핵심" data-region="국내"><td class="title-cell"><a href="https://www.hyundaimotorgroup.com/en/news/hyundai-motor-group-accelerates-autonomous-driving-innovation-with-ai-powered-data-flywheel">현대차그룹 Data Flywheel</a></td><td><span class="status body">본문 확인</span></td><td>2026.09.13</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">기업분석</span><span class="mini-tag">포트폴리오</span></td><td><span class="mini-tag core">핵심</span></td><td><span class="mini-tag">국내</span></td><td><a class="db-source" href="https://www.hyundaimotorgroup.com/en/news/hyundai-motor-group-accelerates-autonomous-driving-innovation-with-ai-powered-data-flywheel">원문 ↗</a></td></tr>
+              <tr data-kind="추가" data-region="해외"><td class="title-cell"><a href="https://www.salesforce.com/news/press-releases/2026/09/14/tsa-improves-travel-experience-agentforce/">TSA Agentforce 고객응대 사례</a></td><td><span class="status limit">근거 제한</span></td><td>2026.09.14</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">기업분석</span></td><td><span class="mini-tag">추가</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.salesforce.com/news/press-releases/2026/09/14/tsa-improves-travel-experience-agentforce/">원문 ↗</a></td></tr>
+              <tr data-kind="핵심" data-region="해외"><td class="title-cell"><a href="https://www.harness.io/blog/the-ai-agent-confidence-gap">AI 에이전트 통제 격차 조사</a></td><td><span class="status cross">교차 확인</span></td><td>2026.09.10</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">면접</span><span class="mini-tag">학습</span></td><td><span class="mini-tag core">핵심</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.harness.io/blog/the-ai-agent-confidence-gap">원문 ↗</a></td></tr>
+              <tr data-kind="핵심" data-region="해외"><td class="title-cell"><a href="https://www.ibm.com/events/ddac">IBM DDAC 맥락 엔지니어링</a></td><td><span class="status session">세션 소개 확인</span></td><td>2026.09.15</td><td><span class="mini-tag ba">BA</span><span class="mini-tag consultant">Consultant</span><span class="mini-tag pm">PM/PO</span></td><td><span class="mini-tag">학습</span><span class="mini-tag">포트폴리오</span></td><td><span class="mini-tag core">핵심</span></td><td><span class="mini-tag overseas">해외</span></td><td><a class="db-source" href="https://www.ibm.com/events/ddac">원문 ↗</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="archive">
+      <div class="section-heading"><div><p class="kicker">Edition archive</p><h2>지난 뉴스레터</h2></div><p class="section-note">실제 발행 회차만 날짜와 시각 순으로 쌓입니다.</p></div>
+      <div class="archive-list">
+        <a class="edition-card" href="../index.html"><span class="edition-date">2026.09.15</span><span class="edition-title">달력에서 전체 발행 이력 보기</span><span class="edition-meta"><span class="edition-badge current">달력 홈</span><span class="edition-badge">핵심 5</span><span class="edition-badge">기타 5</span></span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>Career Signal · 2026년 9월 15일 기준 · 사실과 Codex의 해석을 구분해 작성했습니다.</footer>
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const stories = document.querySelectorAll('.story');
+    stories.forEach((story, index) => {
+      const head = story.querySelector('.story-head');
+      const body = story.querySelector('.story-body');
+      const bodyId = `story-detail-${index + 1}`;
+      body.id = bodyId;
+      story.classList.add('collapsed');
+      const factText = story.querySelector('.block.fact p')?.textContent.trim();
+      if (factText) {
+        const preview = document.createElement('p');
+        preview.className = 'story-preview-fact';
+        const previewLabel = document.createElement('strong');
+        previewLabel.textContent = '핵심 근거';
+        const previewText = document.createElement('span');
+        previewText.textContent = factText.split(/(?<=[.!?다요])\s/)[0];
+        preview.append(previewLabel, previewText);
+        head.appendChild(preview);
+      }
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'story-toggle';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-controls', bodyId);
+      toggle.innerHTML = '<span>심층분석 보기</span><span class="story-toggle-icon" aria-hidden="true">＋</span>';
+      head.appendChild(toggle);
+      toggle.addEventListener('click', () => {
+        const open = story.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.firstElementChild.textContent = open ? '심층분석 닫기' : '심층분석 보기';
+        toggle.lastElementChild.textContent = open ? '−' : '＋';
+      });
+    });
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      tabs.forEach(item => item.classList.remove('active'));
+      tab.classList.add('active');
+      const filter = tab.dataset.filter;
+      stories.forEach(story => story.classList.toggle('hide', filter !== 'all' && !story.dataset.roles.split(' ').includes(filter)));
+    }));
+    const progress = document.getElementById('progress');
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = `${max > 0 ? (window.scrollY / max) * 100 : 0}%`;
+    };
+    addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+    const dbFilters = document.querySelectorAll('.db-filter');
+    const dbRows = document.querySelectorAll('.evidence-table tbody tr');
+    const dbCount = document.getElementById('database-count');
+    dbFilters.forEach(button => button.addEventListener('click', () => {
+      dbFilters.forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      const filter = button.dataset.dbFilter;
+      let visible = 0;
+      dbRows.forEach(row => {
+        const show = filter === 'all' || row.dataset.kind === filter || row.dataset.region === filter;
+        row.classList.toggle('hide', !show);
+        if (show) visible += 1;
+      });
+      dbCount.textContent = `${visible}개 자료`;
+    }));
+    const quiz = document.getElementById('logic-quiz');
+    const quizCards = quiz.querySelectorAll('.quiz-card');
+    const quizResult = document.getElementById('quiz-result');
+    document.getElementById('quiz-check').addEventListener('click', () => {
+      let score = 0;
+      let answered = 0;
+      quizCards.forEach(card => {
+        card.classList.remove('correct', 'incorrect', 'unanswered');
+        const selected = card.querySelector('input:checked');
+        card.classList.add('checked');
+        if (!selected) {
+          card.classList.add('unanswered');
+          return;
+        }
+        answered += 1;
+        const correct = selected.value === card.dataset.answer;
+        card.classList.add(correct ? 'correct' : 'incorrect');
+        if (correct) score += 1;
+      });
+      quizResult.textContent = answered < quizCards.length ? `${answered}/${quizCards.length}문제 답변 · ${score}개 정답` : `${quizCards.length}문제 중 ${score}개 정답`;
+    });
+    quiz.addEventListener('reset', () => {
+      quizCards.forEach(card => card.classList.remove('checked', 'correct', 'incorrect', 'unanswered'));
+      quizResult.textContent = '';
+    });
+  </script>
+</body>
+</html>

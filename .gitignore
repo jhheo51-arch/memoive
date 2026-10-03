@@ -1,0 +1,10 @@
+# Private local credentials and generated personal backups are not submission code.
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+.wrangler/
+node_modules/
+*-backup-*.json
+memoive-self-study-*.json
+memoive-self-study-*.csv

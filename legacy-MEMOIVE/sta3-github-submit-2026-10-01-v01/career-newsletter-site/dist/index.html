@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="날짜별 커리어 뉴스레터를 달력에서 찾아보는 개인 아카이브">
+  <meta name="theme-color" content="#0b1526">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b1526'/%3E%3Cpath d='M17 18h30v30H17z' fill='%23fff'/%3E%3Cpath d='M17 27h30M27 18v30' stroke='%232f80ed' stroke-width='5'/%3E%3Ccircle cx='38' cy='37' r='5' fill='%2300b894'/%3E%3C/svg%3E">
+  <title>Career Signal Archive</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Career Signal Archive 홈">
+      <span class="brand-mark" aria-hidden="true">CS</span>
+      <span>Career Signal Archive</span>
+    </a>
+    <span class="header-note">BA · Consultant · PM/PO</span>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">MY CAREER INTELLIGENCE</p>
+      <h1 id="page-title">흩어진 커리어 신호를<br>날짜별로 꺼내봅니다.</h1>
+      <p class="intro-copy">달력에서 발행일을 고르면 그날의 핵심 흐름과 뉴스레터를 바로 확인할 수 있습니다.</p>
+      <div class="stats" aria-label="뉴스레터 현황">
+        <div><strong id="edition-count">0</strong><span>발행 회차</span></div>
+        <div><strong id="active-days">0</strong><span>기록된 날짜</span></div>
+        <div><strong id="latest-date">—</strong><span>최근 업데이트</span></div>
+      </div>
+    </section>
+
+    <section class="archive-workspace" aria-labelledby="calendar-title">
+      <div class="calendar-card">
+        <div class="calendar-toolbar">
+          <div>
+            <p class="section-label">CALENDAR</p>
+            <h2 id="calendar-title">뉴스레터 달력</h2>
+          </div>
+          <div class="month-controls" aria-label="월 이동">
+            <button id="prev-month" type="button" aria-label="이전 달">←</button>
+            <strong id="month-label" aria-live="polite"></strong>
+            <button id="next-month" type="button" aria-label="다음 달">→</button>
+          </div>
+        </div>
+        <div class="weekday-row" aria-hidden="true">
+          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+        </div>
+        <div class="calendar-grid" id="calendar-grid" role="grid" aria-labelledby="month-label"></div>
+        <div class="calendar-legend"><span><i class="legend-published"></i>뉴스레터 있음</span><span><i class="legend-today"></i>기준일</span></div>
+      </div>
+
+      <aside class="edition-panel" id="edition-panel" aria-live="polite" aria-label="선택한 날짜의 뉴스레터">
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">↗</span>
+          <h2>날짜를 선택해 주세요</h2>
+          <p>뉴스레터가 발행된 날짜에는 파란 표시가 있습니다.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="recent-section" aria-labelledby="recent-title">
+      <div class="section-heading">
+        <div><p class="section-label">RECENT EDITIONS</p><h2 id="recent-title">최근 뉴스레터</h2></div>
+        <p>실제 발행 회차만 최신순으로 표시합니다.</p>
+      </div>
+      <div class="recent-list" id="recent-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Career Signal Archive</p>
+    <p>확인된 사실과 Codex의 해석을 구분해 기록합니다.</p>
+  </footer>
+
+  <script src="assets/editions.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

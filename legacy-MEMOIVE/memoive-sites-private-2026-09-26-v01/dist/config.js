@@ -1,0 +1,1 @@
+window.MEMOIVE_AI_ENDPOINT = '';

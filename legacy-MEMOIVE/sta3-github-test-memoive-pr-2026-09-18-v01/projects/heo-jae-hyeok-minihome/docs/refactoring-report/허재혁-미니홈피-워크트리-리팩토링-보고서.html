@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>허재혁 미니홈피 — 기존 제작과 워크트리 리팩토링 워크플로우</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #dce8d2; color: #16351f; font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif; }
+    .page { width: 297mm; height: 210mm; padding: 15mm 17mm 13mm; page-break-after: always; position: relative; overflow: hidden; background: linear-gradient(135deg,#f7f3df 0%,#eef4df 50%,#dfead3 100%); }
+    .page:last-child { page-break-after: auto; }
+    .page::after { content:""; position:absolute; inset:7mm; border:1px solid rgba(35,85,47,.16); border-radius:9mm; pointer-events:none; }
+    .eyebrow { font-size: 10px; letter-spacing: .22em; font-weight: 800; color:#5d774d; text-transform: uppercase; }
+    h1 { margin: 7mm 0 4mm; font-size: 31px; line-height: 1.18; letter-spacing:-.045em; }
+    h2 { margin: 3mm 0 6mm; font-size: 24px; letter-spacing:-.035em; }
+    h3 { margin:0 0 2.5mm; font-size:15px; }
+    p { margin:0; font-size:12px; line-height:1.65; word-break:keep-all; overflow-wrap:break-word; }
+    .muted { color:#61715f; }
+    .green { color:#245f35; }
+    .rule { width:23mm; height:2px; background:#2f6d3c; margin:4mm 0 7mm; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:7mm; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; }
+    .card { background:rgba(255,255,255,.78); border:1px solid rgba(42,91,49,.18); border-radius:5mm; padding:5mm; box-shadow:0 4px 14px rgba(42,73,35,.06); }
+    .dark { background:#173d26; color:#fff; border-color:#173d26; }
+    .dark .muted { color:#d3e2d2; }
+    .tag { display:inline-block; padding:1.4mm 3mm; border-radius:99px; background:#dfead2; color:#315d37; font-size:9px; font-weight:800; margin:0 1.5mm 1.5mm 0; }
+    .status { display:flex; align-items:center; gap:2mm; font-size:10px; font-weight:700; }
+    .dot { width:7px; height:7px; border-radius:50%; background:#56a866; }
+    .footer { position:absolute; left:17mm; right:17mm; bottom:9mm; display:flex; justify-content:space-between; font-size:8px; color:#71806e; z-index:2; }
+    table { width:100%; border-collapse:collapse; font-size:10px; }
+    th { background:#214c2d; color:#fff; text-align:left; padding:2.5mm 3mm; }
+    td { padding:2.4mm 3mm; border-bottom:1px solid #ccd9c4; vertical-align:top; line-height:1.45; }
+    tr:nth-child(even) td { background:rgba(255,255,255,.42); }
+    ul { margin:2mm 0 0; padding-left:5mm; }
+    li { font-size:10.5px; line-height:1.55; margin:1mm 0; }
+    .metric { font-size:29px; font-weight:900; letter-spacing:-.05em; color:#245f35; }
+    .metric-label { font-size:9px; color:#6a7967; }
+    .quote { font-size:17px; line-height:1.55; font-weight:750; letter-spacing:-.025em; }
+    .cover { display:grid; grid-template-columns:1.15fr .85fr; gap:10mm; align-items:center; height:168mm; }
+    .mountain { height:142mm; border-radius:8mm; background:linear-gradient(165deg,#cfe4df 0 37%,#95b890 38% 53%,#416f4c 54% 74%,#1d442b 75%); position:relative; overflow:hidden; }
+    .mountain::before { content:""; position:absolute; width:72mm; height:72mm; background:#eff5eb; transform:rotate(45deg); left:18mm; top:48mm; box-shadow:45mm -22mm 0 #dcebd8; }
+    .mountain::after { content:"HEO"; position:absolute; left:7mm; bottom:7mm; color:white; font-size:10px; font-weight:900; letter-spacing:.16em; }
+    .check { color:#2b6c39; font-weight:900; }
+    .note { padding:3mm 4mm; border-left:3px solid #3c7a48; background:rgba(224,237,213,.7); font-size:10px; line-height:1.55; }
+    svg text { font-family:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif; }
+  
+    /* v05 unified proportion system */
+    .page { padding: 14mm 17mm 12mm; }
+    .eyebrow { font-size: 9.5px; letter-spacing: .20em; }
+    h2 { margin: 3mm 0 5mm; font-size: 23px; line-height: 1.2; }
+    h3 { font-size: 14px; line-height: 1.3; margin-bottom: 2.5mm; }
+    p { font-size: 11px; line-height: 1.6; }
+    .card { border-radius: 4.5mm; padding: 4.5mm 5mm; }
+    .grid2 { gap: 6mm; }
+    .grid3 { gap: 5mm; }
+    table { font-size: 9.7px; }
+    th { padding: 2.3mm 3mm; }
+    td { padding: 2.2mm 3mm; line-height: 1.4; }
+    .equal-two > .card { min-height: 45mm; display:flex; flex-direction:column; justify-content:center; }
+    .equal-cards > .card { min-height: 32mm; display:flex; flex-direction:column; justify-content:center; }
+    .metric-cards > .card { min-height: 27mm; justify-content:center; }
+    .summary-strip { margin-top: 6mm; min-height: 28mm; padding: 4.5mm 5mm; border-radius: 4.5mm; background: rgba(255,255,255,.78); border: 1px solid rgba(42,91,49,.18); box-shadow: 0 4px 14px rgba(42,73,35,.06); display:flex; flex-direction:column; justify-content:center; }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; align-items:center; }
+    .summary-grid > div { min-height: 14mm; padding-right: 4mm; border-right: 1px solid #d3dfcc; }
+    .summary-grid > div:last-child { border-right:0; padding-right:0; }
+    .decision-strip { border-left: 3px solid #3c7a48; background: rgba(224,237,213,.7); box-shadow:none; }
+    .cover-strip { margin-top:6mm; min-height:24mm; }
+    .footer { bottom: 8mm; }
+
+    .evidence-panel { min-height: 70mm; justify-content:flex-start; }
+    .evidence-matrix { display:grid; grid-template-columns:1fr 1fr; gap:4mm; margin-top:3mm; }
+    .evidence-cell { min-height:24mm; padding:3.5mm 4mm; border:1px solid #d0ddc8; border-radius:3.5mm; background:#f5f8ef; display:flex; flex-direction:column; justify-content:center; }
+    .evidence-cell h4 { margin:0 0 1.5mm; font-size:12px; color:#214c2d; }
+    .evidence-cell p { margin:0; font-size:10.5px; line-height:1.5; }
+
+    .evidence-panel { min-height: 58mm; margin-top:5mm; }
+    .evidence-matrix { gap:3mm; margin-top:2mm; }
+    .evidence-cell { min-height:19mm; padding:2.8mm 3.5mm; }
+    .evidence-cell h4 { font-size:11px; margin-bottom:1mm; white-space:nowrap; }
+    .evidence-cell p { font-size:9.7px; white-space:nowrap; }
+    .nowrap { white-space:nowrap; }
+    .implementation-before { background:rgba(255,255,255,.78); color:#16351f; border-color:rgba(42,91,49,.18); }
+    .implementation-before .muted { color:#61715f; }
+    .implementation-after { background:#173d26; color:#fff; border-color:#173d26; }
+    .implementation-after h3 { font-size:16px; }
+    .implementation-after p { font-size:12.3px; line-height:1.72; }
+    .implementation-after b { color:#fff; }
+    .learning-card h3 { font-size:15px; margin-bottom:3mm; }
+    .learning-card p { font-size:10.8px; line-height:1.5; white-space:nowrap; }
+    .learning-point { display:flex; gap:2.5mm; align-items:flex-start; margin-top:3mm; }
+    .learning-number { min-width:6mm; color:#a9d6aa; font-weight:900; }
+
+    /* v09 · reference editorial system */
+    :root { --paper:#f7faf5; --paper2:#edf3eb; --ink:#17382b; --muted:#52685b; --soft:#75867c; --rule:rgba(23,56,43,.14); --accent:#287a50; --accent-tint:#e1f2da; --white:#fff; }
+    html, body { background:var(--paper); color:var(--ink); font-family:"Noto Sans KR","Malgun Gothic",sans-serif; }
+    .page { padding:14mm 17mm 12mm; background:var(--paper); }
+    .page::after { display:none; }
+    .eyebrow { color:var(--accent); font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.18em; }
+    h1, h2 { font-family:"Noto Serif KR","Batang",serif; font-weight:400; color:var(--ink); }
+    h1 { margin:4mm 0 3mm; font-size:34px; line-height:1.08; letter-spacing:-.055em; }
+    h2 { margin:2.5mm 0 5mm; font-size:24px; line-height:1.22; letter-spacing:-.045em; }
+    h3 { color:var(--ink); }
+    p, li { color:var(--muted); }
+    .muted { color:var(--muted); }
+    .card, .summary-strip, .evidence-cell { background:var(--white); border:1px solid var(--rule); border-radius:2mm; box-shadow:none; }
+    .dark, .implementation-after, .learning-card { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .dark h3, .implementation-after h3, .learning-card h3 { color:#fff; }
+    .dark p, .dark li, .implementation-after p, .learning-card p { color:#eef5ec; }
+    .implementation-before { background:var(--white); border-color:var(--rule); }
+    .tag { padding:1.2mm 2.4mm; border-radius:1.5mm; background:var(--paper2); color:var(--accent); font-family:"Geist Mono",monospace; }
+    .note { border-left:2px solid var(--accent); background:var(--accent-tint); }
+    .decision-strip { border-left:2px solid var(--accent); background:var(--paper2); }
+    .metric { color:var(--accent); }
+    .footer { bottom:6mm; padding-top:2mm; border-top:1px solid var(--rule); color:var(--soft); font-family:"Geist Mono",monospace; }
+    table { color:var(--ink); }
+    th { padding:2.3mm 3mm; background:var(--paper2); color:var(--ink); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+    td { border-bottom:1px solid var(--rule); }
+    tr:nth-child(even) td { background:rgba(237,243,235,.55); }
+    .check { color:var(--accent); }
+    svg rect { rx:6px; }
+    .reference-hero { display:grid; grid-template-columns:1.45fr .55fr; gap:12mm; align-items:end; }
+    .reference-title { font-size:39px; line-height:1.07; }
+    .reference-status { border-left:2px solid var(--accent); padding:1mm 0 1mm 5mm; }
+    .reference-status b { display:block; margin-bottom:2mm; font-size:12px; }
+    .reference-status p { font-size:10.5px; line-height:1.6; }
+    .diagram-frame { margin-top:7mm; padding:5mm; border:1px solid var(--rule); border-radius:2mm; background:var(--white); }
+    .diagram-frame svg { display:block; width:100%; height:86mm; }
+    .cover-stack { display:grid; grid-template-columns:1.15fr 1fr .85fr; gap:4mm; margin-top:5mm; }
+    .cover-tech { min-height:25mm; padding:4mm; border-top:2px solid var(--accent); background:var(--paper2); }
+    .cover-tech strong { display:block; margin-bottom:1.5mm; font-size:11px; }
+    .cover-tech span { color:var(--muted); font-size:9.5px; line-height:1.5; }
+    .implementation-page .equal-two > .card { min-height:52mm; }
+    .implementation-page .metric-cards > .card { min-height:32mm; }
+    .implementation-page .scope-card { min-height:52mm; display:flex; flex-direction:column; justify-content:center; }
+    .verification-page .grid2 { align-items:stretch; }
+    .verification-page .grid2 > .card { min-height:122mm; }
+    .verification-page .grid2 > div { min-height:122mm; display:flex; flex-direction:column; }
+    .verification-page .learning-card { flex:1; display:flex; flex-direction:column; justify-content:center; }
+    .verification-page .learning-card h3 { margin-bottom:4mm; }
+    .final-conclusion { margin-top:4mm; min-height:12mm; padding:3mm 5mm; border-radius:2mm; background:var(--ink); color:#fff; display:flex; align-items:center; }
+    .final-conclusion p { color:#fff; font-size:11px; font-weight:600; line-height:1.45; white-space:nowrap; }
+    .structure-lead { margin-bottom:2.5mm; color:#cfe1d1 !important; font-size:10.5px !important; }
+    .structure-list p { font-size:10.8px; line-height:1.55; }
+    .worktree-effects { min-height:28mm; padding:4mm 5mm; }
+    .worktree-effects h3 { margin-bottom:2mm; font-size:15px; }
+    .worktree-effects .summary-grid { grid-template-columns:1fr 1fr 1fr; gap:4mm; margin-top:0 !important; }
+    .worktree-effects .summary-grid > div { min-height:10mm; padding-right:3mm; display:grid; grid-template-columns:auto 1fr; gap:2mm; align-items:center; }
+    .worktree-effects .tag { margin:0; min-width:11mm; text-align:center; white-space:nowrap; }
+    .worktree-effects p { font-size:10px; line-height:1.35; white-space:nowrap; }
+    .verification-page .learning-card .learning-point { margin-top:6mm; }
+    .verification-page table { font-size:10.5px; }
+    .verification-page td { padding:3mm; }
+    .verification-page li { font-size:11px; margin:1.8mm 0; }
+    .verification-page > .note { min-height:18mm; display:flex; flex-direction:column; justify-content:center; }
+
+    /* v17 · unified typography scale */
+    .eyebrow { font-size:9px; }
+    h1 { font-size:34px; }
+    h2 { font-size:24px; }
+    h3, .implementation-after h3, .learning-card h3, .worktree-effects h3 { font-size:14px; line-height:1.3; }
+    p { font-size:11px; line-height:1.6; }
+    .structure-lead, .structure-list p { font-size:10.5px !important; line-height:1.5; }
+    table { font-size:9.7px; }
+    .note, .cover-tech span, .evidence-cell p { font-size:9.7px; }
+    .tag, .metric-label { font-size:9px; }
+    .footer { font-size:8px; }
+    .worktree-effects p { font-size:10px; line-height:1.35; }
+    .balanced-lines span { display:block; white-space:nowrap; }
+    .reference-status p { font-size:10.5px; line-height:1.65; }
+    .reference-status .status-line { display:block; white-space:nowrap; }
+    .goal-page .equal-two > .card { min-height:59mm; display:flex; flex-direction:column; justify-content:center; }
+    .goal-page .goal-facts { margin:2mm 0 0; padding-left:5mm; }
+    .goal-page .goal-facts li { font-size:11px; line-height:1.55; margin:1.5mm 0; }
+    .goal-page .success-strip { min-height:30mm; }
+    .goal-page .success-strip .summary-grid > div { min-height:13mm; }
+  
+    /* Parallel work evidence: preserve approved editorial palette. */
+    .parallel-map { width:100%; height:105mm; display:block; }
+    .parallel-page .grid2 { gap:5mm; }
+    .parallel-page .card { min-height:33mm; }
+    .parallel-page .note { margin-top:5mm; padding:3.5mm 4mm; }
+    .detail-page .grid2 > .card { min-height:49mm; }
+    .detail-page .metric-cards { margin-top:6mm; }
+    .detail-page .scope-card { margin-top:6mm; }
+    .detail-page td { padding:2mm 3mm; font-size:10.5px; }
+    .result-page table { font-size:10.5px; }
+    .result-page td { padding:2.7mm 3mm; }
+    .result-page .grid2 { margin-top:6mm; }
+    .result-page .grid2 .card { min-height:35mm; }
+    .result-page .note { margin-top:5mm; }
+    .result-page a { color:#287a50; text-decoration:none; }
+    .result-page .sources { margin-top:4mm; font-size:9px; line-height:1.7; }
+    .reference-status .status-line { white-space:normal; }
+    .branch-label { font-family:'Geist Mono',monospace; font-size:11px; }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <header class="reference-hero">
+      <div><div class="eyebrow">HEO · REFACTORING CASE STUDY</div><h1 class="reference-title">허재혁 미니홈피<br>기존 제작과 워크트리 리팩토링</h1></div>
+      <div class="reference-status"><b>개선 목적</b><p><span class="status-line">잘못된 입력과 실패를 일관되게 처리하고,</span><span class="status-line">다음 수정에서도 정상 기능을 지키는 것입니다.</span></p></div>
+    </header>
+    <figure class="diagram-frame">
+      <svg viewBox="0 0 1000 270" role="img" aria-labelledby="cover-flow-title cover-flow-desc">
+        <title id="cover-flow-title">미니홈피 워크트리 리팩토링 실제 흐름</title>
+        <desc id="cover-flow-desc">리팩토링 목표 설정, 기존 흐름 진단, 워크트리 분리, 구조 개선, 자동 검사와 PR 병합까지의 다섯 단계입니다.</desc>
+        <defs><marker id="cover-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#52685b"/></marker></defs>
+        <rect width="1000" height="270" fill="#f7faf5"/>
+        <g stroke="#52685b" stroke-width="2" fill="none" marker-end="url(#cover-arrow)"><line x1="192" y1="118" x2="244" y2="118"/><line x1="376" y1="118" x2="428" y2="118"/><line x1="560" y1="118" x2="612" y2="118"/><line x1="744" y1="118" x2="796" y2="118"/></g>
+        <g font-family="'Noto Sans KR',sans-serif" text-anchor="middle">
+          <g fill="#fff" stroke="rgba(23,56,43,.28)"><rect x="60" y="74" width="132" height="88"/><rect x="244" y="74" width="132" height="88"/><rect x="612" y="74" width="132" height="88"/><rect x="796" y="74" width="144" height="88"/></g>
+          <rect x="428" y="66" width="132" height="104" fill="#e1f2da" stroke="#287a50" stroke-width="2"/>
+          <g fill="#17382b" font-size="13" font-weight="700"><text x="126" y="112">리팩토링 목표</text><text x="310" y="112">기존 흐름 기록</text><text x="494" y="108">워크트리 분리</text><text x="678" y="112">독립 개선</text><text x="868" y="112">검증·PR</text></g>
+          <g fill="#75867c" font-family="'Geist Mono','Noto Sans KR',monospace" font-size="9"><text x="126" y="136">범위·기준 고정</text><text x="310" y="136">장점·한계 확인</text><text x="494" y="136">두 작업 동시 진행</text><text x="678" y="136">방명록·음악 검증</text><text x="868" y="136">검사·빌드·병합</text></g>
+        </g>
+        <line x1="48" y1="214" x2="952" y2="214" stroke="rgba(23,56,43,.14)"/>
+        <text x="48" y="239" fill="#52685b" font-size="9" font-family="'Geist Mono',monospace" letter-spacing=".14em">REFACTOR MAP</text>
+        <rect x="168" y="228" width="22" height="14" fill="#fff" stroke="rgba(23,56,43,.28)"/><text x="201" y="239" fill="#52685b" font-size="9" font-family="'Noto Sans KR',sans-serif">기록·구현 단계</text>
+        <rect x="330" y="228" width="22" height="14" fill="#e1f2da" stroke="#287a50"/><text x="363" y="239" fill="#52685b" font-size="9" font-family="'Noto Sans KR',sans-serif">핵심 선택: 워크트리</text>
+      </svg>
+    </figure>
+    <div class="cover-stack">
+      <div class="cover-tech"><strong>사용 중 생길 문제부터</strong><span>입력 오류와 저장 실패를 구분하고,<br>잘못된 음악 링크가 저장되는 경로를 점검했습니다.</span></div>
+      <div class="cover-tech"><strong>수정할 곳을 명확하게</strong><span>중복된 판단을 공통 처리로 모으고,<br>독립된 개선은 별도 작업 공간에서 진행했습니다.</span></div>
+      <div class="cover-tech"><strong>정상·실패를 함께 확인</strong><span>123개 사례로 정상 입력과 실패 처리를 검사하고,<br>검사한 코드를 main에 병합했습니다.</span></div>
+    </div>
+    <div class="footer"><span>HEO</span><span>01 / 06</span></div>
+  </section>
+
+  <section class="page goal-page">
+    <div class="eyebrow">01 · Refactoring Goal</div><h2>안정적으로 쓰고, 다음에도 안전하게 수정하기 위해</h2>
+    <div class="grid2 equal-two">
+      <div class="card">
+        <h3>1차 정리와 추가로 발견한 문제</h3>
+        <ul class="goal-facts">
+          <li>1차에는 화면과 공통 처리의 역할을 분리하고 중복 함수를 정리했습니다.</li>
+          <li>방명록의 잘못된 입력과 저장 실패가 일관되게 처리되지 않았습니다.</li>
+          <li>유튜브 주소 해석이 잘못된 프로토콜과 영상 ID를 허용했습니다.</li>
+        </ul>
+      </div>
+      <div class="card dark">
+        <h3>이번 리팩토링 목표</h3>
+        <p>정상적인 글 작성과 음악 설정은 유지하면서,<br>잘못된 입력을 차단하고 실패 원인을 일관되게 알려줍니다.<br>공통 규칙과 반복 검사로 다음 수정의 오류 위험을 줄입니다.</p>
+        <div style="margin-top:5mm" class="status"><span class="dot"></span>기존 기능과 사용자 데이터 유지</div>
+        <div class="status"><span class="dot"></span>입력 검증과 실패 응답의 일관성 확보</div>
+        <div class="status"><span class="dot"></span>반복 검사로 변경 안전성 확인</div>
+      </div>
+    </div>
+    <div class="grid3 equal-cards" style="margin-top:7mm">
+      <div class="card"><h3>실패 처리</h3><p class="muted balanced-lines"><span>입력 오류와 저장 실패를 구분해</span><span>상황에 맞는 안내를 반환합니다.</span></p></div>
+      <div class="card"><h3>공통화</h3><p class="muted">화면과 저장 API가 같은 유튜브 주소 검증 함수를 사용합니다.</p></div>
+      <div class="card"><h3>반복 검사</h3><p class="muted">같은 검사 명령을 다시 실행해 기능이 유지되는지 확인합니다.</p></div>
+    </div>
+    <div class="summary-strip success-strip">
+      <h3>성공 기준</h3>
+      <div class="summary-grid" style="margin-top:3mm">
+        <div><span class="tag">유지</span><p class="muted">정상 입력·관리자 인증·저장 구조를 유지합니다.</p></div>
+        <div><span class="tag">일관성</span><p class="muted">화면과 저장 단계에서 같은 링크 규칙을 적용합니다.</p></div>
+        <div><span class="tag">실패</span><p class="muted">잘못된 입력은 거부하고 저장 실패는 성공으로 알리지 않습니다.</p></div>
+      </div>
+    </div>
+    <div class="footer"><span>리팩토링 목표</span><span>02 / 06</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">02 · Original Workflow</div><h2>처음에는 요청이 생길 때마다 기능을 차례로 붙였습니다</h2>
+    <svg viewBox="0 0 1000 420" width="100%" height="123mm" role="img" aria-labelledby="orig-title orig-desc">
+      <title id="orig-title">기존 미니홈피 제작 워크플로우</title><desc id="orig-desc">기획과 첫 화면, 방명록 저장, 디자인 확장, 관리자 기능, 배포 순서로 기능을 누적한 흐름</desc>
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4d7652"/></marker></defs>
+      <path d="M140 170H270M370 170H500M600 170H730M830 170H930" stroke="#4d7652" stroke-width="4" fill="none" marker-end="url(#a)"/>
+      <g fill="#fff" stroke="#6d936c" stroke-width="2">
+        <rect x="30" y="115" width="110" height="110" rx="18"/><rect x="270" y="115" width="100" height="110" rx="18"/><rect x="500" y="115" width="100" height="110" rx="18"/><rect x="730" y="115" width="100" height="110" rx="18"/><rect x="930" y="115" width="45" height="110" rx="18"/>
+      </g>
+      <g font-size="19" font-weight="800" fill="#21482c" text-anchor="middle">
+        <text x="85" y="178" font-size="14">기획·첫 화면</text>
+        <text x="320" y="178" font-size="15">방명록 저장</text>
+        <text x="550" y="178" font-size="15">디자인 확장</text>
+        <text x="780" y="178" font-size="15">관리자 기능</text>
+        <text x="952" y="178" font-size="16">배포</text>
+      </g>
+      <g font-size="15" fill="#647362"><text x="30" y="285">장점</text><text x="30" y="315">• 빠르게 눈에 보이는 결과 확보</text><text x="30" y="343">• 사용자 피드백을 즉시 반영</text><text x="500" y="285">한계</text><text x="500" y="315">• 화면 파일에 책임이 집중됨</text><text x="500" y="343">• 중복 코드와 회귀 위험이 늘어남</text></g>
+    </svg>
+    <div class="summary-strip decision-strip"><b style="margin-right:4mm">핵심 판단</b> 처음 제작 방식이 틀린 것은 아닙니다. 빠른 시제품에는 적합했지만, 기능이 쌓인 뒤에는 구조를 다시 정리할 시점이 필요했습니다.</div>
+    <div class="footer"><span>기존 제작 흐름</span><span>03 / 06</span></div>
+  </section>
+
+  
+<section class="page parallel-page">
+  <div class="eyebrow">03 · Parallel Worktrees</div>
+  <h2>같은 main에서 나눠, 두 개선을 동시에 구현했습니다</h2>
+  <svg class="parallel-map" viewBox="0 0 1000 400" role="img" aria-labelledby="parallel-title parallel-desc">
+    <title id="parallel-title">두 워크트리의 실제 병렬 구현과 main 병합</title>
+    <desc id="parallel-desc">PR 6이 병합된 main에서 방명록과 음악 검증 워크트리를 각각 만들고 두 에이전트가 동시에 개선한 뒤 통합 검사와 PR 12, 13 병합을 완료했습니다.</desc>
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#52685b"/></marker>
+      <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#287a50"/></marker>
+      <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#52685b"/></marker>
+    </defs>
+    <g fill="none" stroke="#52685b" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M184 160H208Q216 160 216 152V104Q216 96 224 96H256"/>
+      <path d="M184 208H200Q208 208 208 216V272Q208 280 216 280H256"/>
+      <path d="M600 96H624Q632 96 632 104V156Q632 164 640 164H668"/>
+      <path d="M600 280H632Q640 280 640 272V220Q640 212 648 212H668"/>
+      <path d="M804 188H844"/>
+    </g>
+    <rect x="16" y="132" width="168" height="112" fill="#fff" stroke="#75867c"/>
+    <text x="36" y="162" font-size="16" fill="#17382b" font-weight="700">공통 출발점</text>
+    <text x="36" y="190" font-size="14" fill="#17382b">main · PR #6 이후</text>
+    <text x="36" y="220" font-size="12" fill="#52685b">같은 코드에서 분기</text>
+    <rect x="256" y="28" width="344" height="136" fill="#e1f2da" stroke="#287a50"/>
+    <text x="276" y="58" font-size="17" font-weight="700" fill="#17382b">A · 방명록 입력·오류 처리</text>
+    <text x="276" y="84" class="branch-label" fill="#52685b">refactor/minihome-guestbook-errors</text>
+    <text x="276" y="111" font-size="13" fill="#17382b">guestbook 폴더 · 에이전트 A</text>
+    <text x="276" y="138" font-size="13" fill="#52685b">작성·수정·삭제 공통화 / 검사 77개</text>
+    <rect x="256" y="212" width="344" height="136" fill="#e1f2da" stroke="#287a50"/>
+    <text x="276" y="242" font-size="17" font-weight="700" fill="#17382b">B · 유튜브 링크 검증</text>
+    <text x="276" y="268" class="branch-label" fill="#52685b">refactor/minihome-playlist-validation</text>
+    <text x="276" y="295" font-size="13" fill="#17382b">playlist 폴더 · 에이전트 B</text>
+    <text x="276" y="322" font-size="13" fill="#52685b">화면·저장 규칙 통일 / 검사 46개</text>
+    <rect x="668" y="132" width="136" height="112" fill="#fff" stroke="#75867c"/>
+    <text x="736" y="164" text-anchor="middle" font-size="16" font-weight="700" fill="#17382b">통합 검사</text>
+    <text x="736" y="193" text-anchor="middle" font-size="13" fill="#52685b">123개 + 빌드</text>
+    <text x="736" y="220" text-anchor="middle" font-size="12" fill="#52685b">충돌 없이 결합</text>
+    <rect x="844" y="132" width="140" height="112" fill="#fff" stroke="#75867c"/>
+    <text x="914" y="164" text-anchor="middle" font-size="16" font-weight="700" fill="#17382b">main 병합</text>
+    <text x="914" y="193" text-anchor="middle" font-size="13" fill="#52685b">PR #12 · #13</text>
+    <text x="914" y="220" text-anchor="middle" font-size="12" fill="#287a50">모두 MERGED</text>
+    <line x1="16" y1="376" x2="984" y2="376" stroke="#d0dbd2"/>
+    <text x="16" y="396" font-size="12" fill="#52685b">초록색: 독립 작업 공간 · 흰색: 기준, 통합 검사, 최종 반영</text>
+  </svg>
+  <div class="grid2">
+    <div class="card"><h3>실제 동시 진행 구간</h3><p>방명록 17:59:33~18:02:03 · 음악 17:59:53~18:02:36<br>9월 18일 한국 시간 기준, 구현 구간이 2분 10초 겹쳤습니다.</p></div>
+    <div class="card"><h3>겹치지 않도록 나눈 책임</h3><p>방명록 처리 파일과 음악 공통 함수·설정 파일을 분담했습니다.<br>검사도 따로 작성하고, 마지막에 한 작업 공간에서 함께 확인했습니다.</p></div>
+  </div>
+  <div class="note">지금 다시 한다면: 사용자에게 영향을 줄 오류부터 고르고, 공통 규칙과 정상·실패 검사를 함께 정리합니다.<br>워크트리는 독립된 변경을 격리하는 수단입니다. 동시 진행 자체가 품질이나 시간 단축을 보장하지는 않습니다.</div>
+  <div class="footer"><span>실제 워크트리 병렬 구현</span><span>04 / 06</span></div>
+</section>
+<section class="page detail-page">
+  <div class="eyebrow">04 · Implementation Results</div>
+  <h2>구조 정리에 이어, 입력과 실패 처리까지 개선했습니다</h2>
+  <div class="grid2">
+    <div class="card implementation-before"><h3>개선 전: 경계값과 실패에 빈틈</h3>
+      <p>방명록의 잘못된 JSON이 서버 오류로 처리되고,<br>수정·삭제의 실패 안내가 일관되지 않았습니다.</p>
+      <p style="margin-top:5mm">유튜브 해석은 잘못된 프로토콜이나 영상 ID도 받아<br>화면과 저장 단계의 판단이 달라질 수 있었습니다.</p>
+    </div>
+    <div class="card implementation-after"><h3>개선 후: 한 곳에서 일관되게 검사</h3>
+      <p style="font-size:11px">방명록 작성·수정·삭제의 공통 검사를 모으고,<br>입력 오류·권한 없음·글 없음·서버 실패를 구분했습니다.</p>
+      <p style="margin-top:5mm;font-size:11px">유튜브 주소는 공통 함수에서 형식과 영상 ID를 검사해<br>화면과 저장 API가 같은 규칙을 쓰게 했습니다.</p>
+    </div>
+  </div>
+  <div class="grid3 equal-cards metric-cards">
+    <div class="card"><h3>방명록 실패 안내</h3><p>잘못된 입력과 저장 실패를 구분하고,<br>저장 결과가 없으면 성공을 반환하지 않습니다.</p></div>
+    <div class="card"><h3>음악 설정의 일관성</h3><p>화면과 저장 처리의 검증을 통일해,<br>잘못된 형식의 링크가 통과하지 않게 했습니다.</p></div>
+    <div class="card"><h3>다음 수정의 안전성</h3><p>정상·오류·권한 사례를 다시 실행해,<br>기존 동작이 깨지는지 확인할 수 있습니다.</p></div>
+  </div>
+  <div class="card scope-card"><h3>다시 구성한 구조와 이번 변경 위치</h3>
+    <table><thead><tr><th style="width:31%">역할</th><th>담당 파일과 실제 변경</th></tr></thead><tbody>
+      <tr><td>화면 조립·표시 · 1차 구조 유지</td><td>app/page.tsx와 overview.tsx의 역할 분리는 유지</td></tr>
+      <tr><td>방명록 처리 · 작업 A</td><td>app/api/guestbook/route.ts에서 입력 검사·실패 응답 공통화</td></tr>
+      <tr><td>음악 공통 검증 · 작업 B</td><td>lib/minihome.ts의 검증을 강화하고 settings/route.ts에서 재사용</td></tr>
+      <tr><td>반복 검사 · 각 담당자</td><td>scripts/ 아래 기존 4개 사례를 확장해 총 123개 검사 제공</td></tr>
+    </tbody></table>
+  </div>
+  <div class="note" style="margin-top:5mm">정상적인 사용 흐름과 저장 구조는 유지했습니다. 잘못된 입력을 더 일찍 거부하고 실패 안내를 보완한 것은 의도한 동작 개선입니다.</div>
+  <div class="footer"><span>구조와 검증 개선 결과</span><span>05 / 06</span></div>
+</section>
+<section class="page result-page">
+  <div class="eyebrow">05 · Verification & Merge</div>
+  <h2>독립 구현 후, 합친 코드를 검사하고 실제로 병합했습니다</h2>
+  <table><thead><tr><th style="width:19%">비교 기준</th><th style="width:35%">처음 제작</th><th>이번 병렬 리팩토링</th></tr></thead><tbody>
+    <tr><td>입력·실패 처리</td><td>잘못된 입력과 서버 실패의 처리가 불균일</td><td>방명록 입력 오류·권한·글 없음·서버 실패를 구분</td></tr>
+    <tr><td>음악 검증 규칙</td><td>주소 해석과 저장 단계의 추가 검증이 분산</td><td>공통 함수에서 같은 형식·영상 ID 규칙을 적용</td></tr>
+    <tr><td>검사 방식</td><td>화면 중심 확인, 초기 자동 검사 4개</td><td>123개 자동 검사 + 수정 6파일 정적 검사 + 전체 빌드</td></tr>
+    <tr><td>통합 방식</td><td>수정한 결과를 직접 반영</td><td>별도 통합 공간에서 함께 검사한 뒤 PR 단위 병합</td></tr>
+    <tr><td>변경 추적</td><td>요청과 화면 결과 위주 기록</td><td>각 담당자의 커밋·검사·PR·병합 이력을 연결</td></tr>
+  </tbody></table>
+  <div class="grid2">
+    <div class="card"><h3>PR #12 · 음악 검증 / MERGED</h3><p>공통 함수 37개와 저장 처리 9개 검사 통과.<br>9월 18일 18:06:22에 main으로 병합했습니다.</p></div>
+    <div class="card"><h3>PR #13 · 방명록 / MERGED</h3><p>입력·권한·저장 실패 등 처리 사례 77개 통과.<br>9월 18일 18:06:25에 main으로 병합했습니다.</p></div>
+  </div>
+  <div class="summary-strip" style="margin-top:5mm;min-height:29mm">
+    <h3>결론: 작업 개수보다 일관된 동작과 수정 안전성이 중요합니다</h3>
+    <p>실패 처리를 모으고 검증 규칙을 통일해, 다음 변경에서 확인할 위치와 기준을 명확하게 했습니다.<br>123개 검사 통과는 해당 사례의 근거입니다. 실제 사용자 오류 감소나 운영 안정성 향상을 측정한 결과는 아닙니다.</p>
+  </div>
+  <div class="note">검사 범위: 실제 서버 처리 코드를 실행하되 데이터베이스와 인증 경계는 모의 객체로 대체했습니다.<br>운영 데이터 변경·운영 사이트 재배포·이번 변경의 브라우저 실사용 검사는 수행하지 않았습니다.</div>
+  <div class="sources">근거 · GitHub 공개 저장소 <a href="https://github.com/jhheo51-arch/sta3-github-test/tree/main/projects/heo-jae-hyeok-minihome">sta3-github-test / projects/heo-jae-hyeok-minihome</a><br>
+    <a href="https://github.com/jhheo51-arch/sta3-github-test/pull/12">PR #12 · 5152845</a> &nbsp; / &nbsp; <a href="https://github.com/jhheo51-arch/sta3-github-test/pull/13">PR #13 · 85e6322</a> · GitHub 병합 상태 및 로컬 검사 결과 확인</div>
+  <div class="footer"><span>전후 비교와 실제 병합 결과</span><span>06 / 06</span></div>
+</section>
+</body></html>

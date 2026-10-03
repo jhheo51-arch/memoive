@@ -1,0 +1,3 @@
+interface:
+  display_name: "InsightFlow CRM"
+  short_description: "PRD 기준으로 InsightFlow CRM을 구현하고 개선합니다"

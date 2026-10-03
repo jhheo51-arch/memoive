@@ -1,0 +1,6 @@
+interface:
+  display_name: "커리어 뉴스레터 리서치"
+  short_description: "최신 자료 조사부터 직무별 뉴스레터·Notion 표까지"
+  default_prompt: "Use $career-newsletter-research to research and create my current personalized career newsletter, and save it to Notion with an evidence database when I ask."
+policy:
+  allow_implicit_invocation: true

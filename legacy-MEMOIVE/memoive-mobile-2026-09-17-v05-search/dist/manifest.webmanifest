@@ -1,0 +1,1 @@
+{"name":"MEMOIVE Smart Archive","short_name":"MEMOIVE","start_url":"./","display":"standalone","background_color":"#f4efe6","theme_color":"#34241e","lang":"ko","share_target":{"action":"./","method":"GET","params":{"title":"title","text":"text","url":"url"}},"description":"공유 메뉴에서 무엇이든 받아 근거 있는 나만의 기록으로 정리합니다."}
