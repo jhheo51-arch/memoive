@@ -11,3 +11,4 @@ memoive-self-study-*.json
 memoive-self-study-*.csv
 
 .env*
+.vercel

@@ -1,0 +1,10 @@
+legacy-MEMOIVE/
+docs/
+tests/
+cloudflare-worker/
+scripts/
+self-test.html
+self-test.css
+self-test.js
+CLAUDE.md
+README.md
