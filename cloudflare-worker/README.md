@@ -13,7 +13,7 @@
 ## 설정과 별도 환경
 - GEMINI_API_KEY는 Cloudflare Secret으로만 등록합니다. .env를 브라우저로 제공하거나 Git에 올리지 않습니다.
 - GEMINI_MODEL은 자신의 프로젝트에서 실제 이용 가능 여부를 확인합니다.
-- ALLOWED_ORIGIN은 허용할 화면 주소를 명시합니다. 현재 설정은 운영 Site만 허용하여 로컬 미리보기는 거절될 수 있습니다.
+- ALLOWED_ORIGIN은 허용할 화면 주소를 명시합니다. 운영 Vercel 주소와 승인한 Cloudflare Pages·GitHub Pages 화면만 허용하며 로컬 미리보기와 관계없는 사이트는 거절됩니다.
 - AI_RECORDS_ENABLED=true 및 AI_RATE_LIMITER가 필요합니다. 바인딩 누락 시 요청을 차단합니다.
 - wrangler.toml의 이름·namespace는 기존 운영 프로젝트 설정입니다. 다른 계정에서는 자신의 Worker·미사용 namespace를 선택하고 기존 운영 Worker를 덮어쓰지 마세요.
 - config.js에는 키가 아니라 자신의 Worker /v1/insight 및 /v1/refine 주소를 사용합니다.

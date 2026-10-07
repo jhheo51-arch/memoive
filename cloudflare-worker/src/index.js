@@ -8,7 +8,15 @@ function json(data, status = 200, extraHeaders = {}) {
 function allowedOrigin(request, env) {
   const origin = request.headers.get('Origin') || '';
   const allowed = String(env.ALLOWED_ORIGIN || '').split(',').map(value => value.trim()).filter(Boolean);
-  return allowed.includes(origin) ? origin : '';
+  let hostname = '';
+  try { hostname = new URL(origin).hostname; } catch {}
+  const matches = allowed.some(value => {
+    if (value === origin) return true;
+    if (!value.startsWith('*.')) return false;
+    const suffix = value.slice(1);
+    return hostname.endsWith(suffix) && hostname.length > suffix.length;
+  });
+  return matches ? origin : '';
 }
 
 function cors(origin) {

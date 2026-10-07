@@ -6,7 +6,7 @@ compatibility_date = "2026-09-26"
 region = "gcp:asia-northeast3"
 
 [vars]
-ALLOWED_ORIGIN = "https://memoive-private-20260926.sooyeon-jun-0389.chatgpt.site,https://memoive.vercel.app"
+ALLOWED_ORIGIN = "https://memoive-private-20260926.sooyeon-jun-0389.chatgpt.site,https://memoive.vercel.app,*.pages.dev,*.github.io"
 GEMINI_MODEL = "gemini-3.5-flash-lite"
 AI_RECORDS_ENABLED = "true"
 # Before enabling: verify GEMINI_MODEL and actual quotas in this API project.
