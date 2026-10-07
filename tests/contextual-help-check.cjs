@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const read = name => fs.readFileSync(path.join(__dirname, '..', name), 'utf8');
-const html = read('index.html'), app = read('app.js');
+const html = read('index.html'), app = read('frontend/js/app.js');
 assert.ok(!html.includes('基本 5개'));
 assert.ok(!html.includes('기본 5개와 제품 사례 3개는'));
 assert.ok(html.includes('세 글을 미리 묶어 둔 개선 제안'));
@@ -12,7 +12,7 @@ assert.ok(html.includes('기본 제공 자료만 사용한 결과물은 실제 �
 assert.ok(html.includes('브라우저 데이터 삭제·기기 분실'));
 const notice = {hidden: true};
 const element = {classList: {add() {}}};
-const context = {state: {records: []}, DataTools: require('../data-tools.js'), $: selector => selector === '#capture-storage-note' ? notice : element};
+const context = {state: {records: []}, DataTools: require('../frontend/js/data-tools.js'), $: selector => selector === '#capture-storage-note' ? notice : element};
 vm.createContext(context);
 vm.runInContext(app.match(/^function openSheet\(id\).*$/m)[0], context);
 vm.runInContext("openSheet('#capture-sheet')", context);

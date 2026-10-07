@@ -3,8 +3,6 @@ docs/
 tests/
 cloudflare-worker/
 scripts/
-self-test.html
-self-test.css
-self-test.js
+tools/self-test/
 CLAUDE.md
 README.md

@@ -12,10 +12,11 @@ thread = threading.Thread(target=server.serve_forever, daemon=True)
 thread.start()
 checks = 0
 try:
-    for path, expected in [('/', 200), ('/app.js?v=test', 200), ('/self-test.html', 200),
-                           ('/insight-tools.js', 200), ('/insight-contract.js', 200), ('/insight-context.js', 200),
+    for path, expected in [('/', 200), ('/frontend/js/app.js?v=test', 200), ('/tools/self-test/index.html', 200),
+                           ('/frontend/js/insight-tools.js', 200), ('/frontend/js/insight-contract.js', 200), ('/frontend/js/insight-context.js', 200),
                            ('/.env', 404), ('/%2eenv', 404), ('/.env.example', 404),
                            ('/../.env', 404), ('/docs/', 404),
+                           ('/app.js', 404), ('/self-test.html', 404),
                            ('/cloudflare-worker/src/index.js', 404), ('/scripts/serve.py', 404)]:
         for method in ('GET', 'HEAD'):
             connection = HTTPConnection('127.0.0.1', server.server_port, timeout=5)

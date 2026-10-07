@@ -1,4 +1,4 @@
-import '../../insight-contract.js';
+import '../../frontend/js/insight-contract.js';
 const MAX_BODY_CHARS=60000;
 const MAX_REQUEST_BYTES=250000;
 // Not enabled until the owner supplies a key, verified model and rate-limit binding.

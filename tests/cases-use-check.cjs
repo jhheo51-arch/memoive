@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const D=require('../data-tools.js'),C=require('../case-studies.js');
+const D=require('../frontend/js/data-tools.js'),C=require('../frontend/js/case-studies.js');
 const own={id:'own',type:'text',title:'내 기획',thought:'직접 쓴 생각',savedAt:'2026-10-01',topics:[],url:''};
 const before=JSON.stringify(own),records=D.withExamples([own],C.records);
 assert.equal(records.length,4);assert.equal(JSON.stringify(own),before);

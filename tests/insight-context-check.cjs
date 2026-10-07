@@ -1,10 +1,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const contract=require('../insight-contract.js'),helpers=require('../insight-tools.js');
+const contract=require('../frontend/js/insight-contract.js'),helpers=require('../frontend/js/insight-tools.js');
 const elements=new Map();const $=id=>{if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,dataset:{},setAttribute(){},querySelector(){return {hidden:false,textContent:''}}});return elements.get(id);};
 const record={id:'synthetic',title:'합성 검증',sourceBody:'반복 작업 자동화의 효과를 실제 사용 시간으로 확인합니다. '.repeat(4),thought:'저장한 생각',bodySavedAt:'one'};
 let sent=0,resolveFetch,persisted=0;
-const c={state:{records:[record],currentId:record.id,role:'기획자'},$,renderInsight:()=>{},insightJobs:new Set(),InsightTools:helpers,DataTools:require('../data-tools.js'),MemoiveContract:contract,esc:s=>String(s),INSIGHT_ENDPOINT:'https://test.invalid',AbortController,setTimeout,clearTimeout,fetch:async()=>{sent++;return new Promise(r=>resolveFetch=r)},persist:()=>persisted++,retrySource:()=>{},applyArticle:()=>{},renderAll:()=>{},renderSourceBody:()=>{}};
-vm.createContext(c);vm.runInContext(fs.readFileSync(require.resolve('../insight-context.js'),'utf8'),c);
+const c={state:{records:[record],currentId:record.id,role:'기획자'},$,renderInsight:()=>{},insightJobs:new Set(),InsightTools:helpers,DataTools:require('../frontend/js/data-tools.js'),MemoiveContract:contract,esc:s=>String(s),INSIGHT_ENDPOINT:'https://test.invalid',AbortController,setTimeout,clearTimeout,fetch:async()=>{sent++;return new Promise(r=>resolveFetch=r)},persist:()=>persisted++,retrySource:()=>{},applyArticle:()=>{},renderAll:()=>{},renderSourceBody:()=>{}};
+vm.createContext(c);vm.runInContext(fs.readFileSync(require.resolve('../frontend/js/insight-context.js'),'utf8'),c);
 (async()=>{
  c.renderInsight(record);assert.equal($('#insight-request').disabled,true);
  await c.requestRecordInsight();assert.equal(sent,0);

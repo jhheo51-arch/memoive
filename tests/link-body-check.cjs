@@ -1,8 +1,8 @@
 const assert=require('node:assert/strict');
 const vm=require('node:vm');
 const fs=require('node:fs');
-const reader=require('../link-reader.js');
-const data=require('../data-tools.js');
+const reader=require('../frontend/js/link-reader.js');
+const data=require('../frontend/js/data-tools.js');
 assert.equal(reader.publisherUrl('https://techblog.woowahan.com/26034/'),'https://techblog.woowahan.com/wp-json/wp/v2/posts/26034');
 assert.equal(reader.publisherUrl('https://techblog.woowahan.com.evil.test/26034/'),'');
 assert.equal(reader.youtubeVideoId('https://www.youtube.com/watch?v=Aj2a5Ru2vMA'),'Aj2a5Ru2vMA');
@@ -29,7 +29,7 @@ const content=('저장할 본문입니다. '.repeat(2000))+'마지막 본문 보
 const record={id:'test',title:'긴 기록',topics:[],sourceBody:content};
 assert.equal(data.validateBackup(JSON.stringify({records:[record]})).records[0].sourceBody,content);
 assert.ok(reader.summarize('문장이너무길어서선택기준에해당하지않는내용'.repeat(100),'제목').summary);
-const app=fs.readFileSync(require.resolve('../app.js'),'utf8');
+const app=fs.readFileSync(require.resolve('../frontend/js/app.js'),'utf8');
 const scope={LinkReader:reader,safeHost:()=> 'example.com',publishedDate:x=>x,extractActions:()=>[]};
 vm.createContext(scope);
 vm.runInContext(app.split('\n').find(x=>x.startsWith('function applyArticle(')),scope);

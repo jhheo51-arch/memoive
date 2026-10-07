@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const D = require('../data-tools.js');
+const D = require('../frontend/js/data-tools.js');
 const records = [
   {id:'older',title:'old',savedAt:'2026-09-30',thought:'보존'},
   {id:'morning',title:'am',savedAt:'2026-10-01',capturedAt:'2026-10-01T09:00:00+09:00'},
@@ -23,7 +23,7 @@ assert.equal((nav.match(/<svg /g)||[]).length,5);
 assert.equal((nav.match(/aria-hidden="true"/g)||[]).length,5);
 assert.ok(nav.includes('aria-current="page"'));
 assert.ok(nav.includes('aria-label="새 기록 추가"'));
-const app = fs.readFileSync(require.resolve('../app.js'),'utf8');
+const app = fs.readFileSync(require.resolve('../frontend/js/app.js'),'utf8');
 assert.ok(app.includes('function renderAll(){state.records=DataTools.sortRecords(state.records)'));
 assert.ok(app.includes('capturedAt:new Date().toISOString()'));
 const go = app.match(/^function go\(screen\).+$/m)[0];
