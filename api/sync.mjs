@@ -1,6 +1,8 @@
-import { BlobPreconditionFailedError, get, head, put } from '@vercel/blob';
+import { authorized } from './_owner-auth.mjs';
+import { supabaseAdmin } from './_supabase.mjs';
+import { corsHeaders, preflight } from './_cors.mjs';
 
-const PATHNAME = 'memoive/owner-state.json';
+const OWNER_ID = 'owner';
 const MAX_BYTES = 2 * 1024 * 1024;
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -35,24 +37,12 @@ export function validateSyncState(input) {
   return input;
 }
 
-async function sha256(value) {
-  const bytes = new TextEncoder().encode(value);
-  return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(byte => byte.toString(16).padStart(2, '0')).join('');
+export function versionFromEtag(value = '') {
+  const match = String(value).match(/^v(\d+)$/);
+  return match ? Number(match[1]) : 0;
 }
 
-function constantTimeEqual(a, b) {
-  if (!a || !b || a.length !== b.length) return false;
-  let mismatch = 0;
-  for (let index = 0; index < a.length; index += 1) mismatch |= a.charCodeAt(index) ^ b.charCodeAt(index);
-  return mismatch === 0;
-}
-
-export async function authorized(request, expectedHash = process.env.MEMOIVE_SYNC_SECRET_SHA256 || '') {
-  const header = request.headers.get('Authorization') || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-  if (!token || token.length > 300 || !expectedHash) return false;
-  return constantTimeEqual(await sha256(token), expectedHash.toLowerCase());
-}
+export { authorized };
 
 async function readBody(request) {
   const reader = request.body?.getReader();
@@ -75,44 +65,63 @@ async function readBody(request) {
   return validateSyncState(JSON.parse(new TextDecoder().decode(bytes)));
 }
 
-async function readCloudState() {
-  const result = await get(PATHNAME, { access: 'private', useCache: false });
-  if (!result || result.statusCode === 404) return null;
-  if (result.statusCode !== 200 || !result.stream) throw new Error('클라우드 기록을 읽지 못했어요.');
-  const data = JSON.parse(await new Response(result.stream).text());
-  // A private Blob download may expose a weak CDN ETag (W/"...").
-  // Conditional writes require the strong store ETag returned by head().
-  const metadata = await head(PATHNAME);
-  return { data: validateSyncState(data), etag: metadata.etag || '' };
+async function readCloudState(client) {
+  const { data, error } = await client.from('memoive_owner_state').select('payload,version,updated_at').eq('id', OWNER_ID).maybeSingle();
+  if (error) throw error;
+  return data ? { data: validateSyncState(data.payload), version: Number(data.version) || 1, updatedAt: data.updated_at } : null;
 }
 
 export default {
   async fetch(request) {
-    if (!await authorized(request)) return json({ message: '소유자 연결 코드를 확인해 주세요.' }, 401);
+    const cors = corsHeaders(request);
+    const options = preflight(request);
+    if (options) return options;
+    if (request.headers.get('Origin') && !Object.keys(cors).length) return json({ message: '허용되지 않은 서비스 주소예요.' }, 403);
+    if (!await authorized(request)) return json({ message: '소유자 연결 코드를 확인해 주세요.' }, 401, cors);
+    let client;
+    try { client = supabaseAdmin(); }
+    catch (error) { return json({ message: error.message }, 503, cors); }
+
     if (request.method === 'GET') {
       try {
-        const stored = await readCloudState();
-        return stored ? json({ ...stored.data, syncEtag: stored.etag }) : json({ message: '아직 클라우드 기록이 없어요.' }, 404);
+        const stored = await readCloudState(client);
+        return stored
+          ? json({ ...stored.data, syncEtag: `v${stored.version}`, syncedAt: stored.updatedAt }, 200, cors)
+          : json({ message: '아직 Supabase에 저장된 기록이 없어요.' }, 404, cors);
       } catch (error) {
-        return json({ message: error.message || '클라우드 기록을 읽지 못했어요.' }, 500);
+        return json({ message: error.message || 'Supabase 기록을 읽지 못했어요.' }, 500, cors);
       }
     }
-    if (request.method !== 'PUT') return json({ message: 'GET 또는 PUT 요청만 사용할 수 있어요.' }, 405, { Allow: 'GET, PUT' });
-    if (!request.headers.get('Content-Type')?.includes('application/json')) return json({ message: 'JSON 형식만 저장할 수 있어요.' }, 415);
+    if (request.method !== 'PUT') return json({ message: 'GET 또는 PUT 요청만 사용할 수 있어요.' }, 405, { ...cors, Allow: 'GET, PUT, OPTIONS' });
+    if (!request.headers.get('Content-Type')?.includes('application/json')) return json({ message: 'JSON 형식만 저장할 수 있어요.' }, 415, cors);
+
     try {
-      const data = await readBody(request);
-      const ifMatch = cleanText(request.headers.get('If-Match'), 200);
-      const blob = await put(PATHNAME, JSON.stringify(data), {
-        access: 'private',
-        allowOverwrite: true,
-        contentType: 'application/json; charset=utf-8',
-        cacheControlMaxAge: 60,
-        ...(ifMatch ? { ifMatch } : {})
-      });
-      return json({ ok: true, syncEtag: blob.etag, records: data.records.length, outputs: data.outputs.length, updatedAt: new Date().toISOString() });
+      const payload = await readBody(request);
+      const currentVersion = versionFromEtag(cleanText(request.headers.get('If-Match'), 100));
+      let row;
+      if (currentVersion) {
+        const { data, error } = await client
+          .from('memoive_owner_state')
+          .update({ payload, version: currentVersion + 1, updated_at: new Date().toISOString() })
+          .eq('id', OWNER_ID)
+          .eq('version', currentVersion)
+          .select('version,updated_at')
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) return json({ message: '다른 화면에서 기록이 먼저 바뀌었어요. 최신 기록을 다시 불러와 주세요.' }, 412, cors);
+        row = data;
+      } else {
+        const { data, error } = await client
+          .from('memoive_owner_state')
+          .upsert({ id: OWNER_ID, payload, version: 1, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+          .select('version,updated_at')
+          .single();
+        if (error) throw error;
+        row = data;
+      }
+      return json({ ok: true, syncEtag: `v${row.version}`, records: payload.records.length, outputs: payload.outputs.length, updatedAt: row.updated_at }, 200, cors);
     } catch (error) {
-      if (error instanceof BlobPreconditionFailedError) return json({ message: '다른 화면에서 기록이 먼저 바뀌었어요. 최신 기록을 다시 불러와 주세요.' }, 412);
-      return json({ message: error.message || '클라우드에 기록을 저장하지 못했어요.' }, 400);
+      return json({ message: error.message || 'Supabase에 기록을 저장하지 못했어요.' }, 400, cors);
     }
   }
 };
