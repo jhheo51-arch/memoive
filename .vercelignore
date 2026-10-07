@@ -3,5 +3,4 @@ docs/
 tests/
 cloudflare-worker/
 scripts/
-CLAUDE.md
 README.md
