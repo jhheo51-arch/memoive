@@ -5,7 +5,7 @@ let chromium;
 try{
   ({chromium}=require(process.env.MEMOIVE_PLAYWRIGHT||'C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
 }catch{
-  const app=fs.readFileSync(path.join(__dirname,'..','app.js'),'utf8');
+  const app=fs.readFileSync(path.join(__dirname,'..','frontend','js','app.js'),'utf8');
   assert.match(app,/const siteDemoRecords=\[/);
   assert.match(app,/AI 전환, 우리가 도운 건 돕는 사람이었습니다/);
   assert.match(app,/function syncSiteDemoRecords\(records,dismissedIds=\[\]\)/);

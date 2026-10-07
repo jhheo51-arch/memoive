@@ -16,12 +16,12 @@
 - ALLOWED_ORIGIN은 허용할 화면 주소를 명시합니다. 운영 Vercel 주소와 승인한 Cloudflare Pages·GitHub Pages 화면만 허용하며 로컬 미리보기와 관계없는 사이트는 거절됩니다.
 - AI_RECORDS_ENABLED=true 및 AI_RATE_LIMITER가 필요합니다. 바인딩 누락 시 요청을 차단합니다.
 - wrangler.toml의 이름·namespace는 기존 운영 프로젝트 설정입니다. 다른 계정에서는 자신의 Worker·미사용 namespace를 선택하고 기존 운영 Worker를 덮어쓰지 마세요.
-- config.js에는 키가 아니라 자신의 Worker /v1/insight 및 /v1/refine 주소를 사용합니다.
+- `frontend/js/config.js`에는 키가 아니라 자신의 Worker `/v1/insight` 및 `/v1/refine` 주소를 사용합니다.
 
 Origin 허용은 사용자 인증이 아니고 외부 요청에서 위조할 수 있습니다. 현재 5회/60초는 지역별 남용 완화이며 Google 무료 일일 요청 수·전 세계 총량·요금 상한이 아닙니다. 본격 공개 확장 전 사용자 인증·개인별 할당·전체 예산 보호를 추가 검토해야 합니다. 유료 전환은 자동으로 하지 않습니다.
 
 ## 배포와 검사
-wrangler.toml을 사용하는 배포에는 src/index.js, src/insight.mjs, 그리고 상위 앱 폴더의 insight-contract.js가 필요합니다. 단일 src 폴더만 복사하면 안 됩니다.
+wrangler.toml을 사용하는 배포에는 `src/index.js`, `src/insight.mjs`, 그리고 상위 앱의 `frontend/js/insight-contract.js`가 필요합니다. 단일 `src` 폴더만 복사하면 안 됩니다.
 
 대시보드의 단일 파일 편집기를 사용하는 경우:
 ```sh

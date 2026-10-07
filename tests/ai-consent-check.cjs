@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(require.resolve('../app.js'),'utf8');
+const source=fs.readFileSync(require.resolve('../frontend/js/app.js'),'utf8');
 let sent=0;
 const context={AI_ENDPOINT:'https://worker.test/v1/refine',window:{memoiveConfirm:async()=>false},AbortController,setTimeout,clearTimeout,fetch:async()=>{sent++;return Response.json({title:'초안',body:'본문'});}};
 vm.createContext(context);

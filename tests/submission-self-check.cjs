@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
-const Data = require('../data-tools.js');
-const Study = require('../study-tools.js');
+const Data = require('../frontend/js/data-tools.js');
+const Study = require('../frontend/js/study-tools.js');
 const record={id:'actual-record',title:'첫 사용 장면',type:'text',summary:'원문에서 확인한 내용',thought:'작은 실험으로 검증하자',topics:['제품 도입'],points:['검색에는 핵심 문장도 포함'],evidence:[{text:'회의봇 사례'}]};
 assert.equal(Data.matchesQuery(record,'  작은   검증 '),true);
 assert.equal(Data.matchesQuery(record,'회의봇'),true);

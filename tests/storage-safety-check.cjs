@@ -1,5 +1,5 @@
 // Synthetic failure injection. Does not inspect or modify any real browser data.
-const assert=require('node:assert/strict'),Guard=require('../storage-guard.js'),Data=require('../data-tools.js');
+const assert=require('node:assert/strict'),Guard=require('../frontend/js/storage-guard.js'),Data=require('../frontend/js/data-tools.js');
 const record={id:'fixture',title:'가상 기록',topics:[],thought:'보존할 생각'},initial={records:[record],outputs:[]};
 function fake(seed={}){const values=new Map(Object.entries(seed));return {values,getItem:key=>values.get(key)??null,setItem(key,value){if(this.fail===key)throw Error('quota');values.set(key,value)}};}
 let checks=0;

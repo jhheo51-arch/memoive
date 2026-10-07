@@ -6,12 +6,24 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
+FRONTEND_JS = {
+    'accessibility.js', 'analytics-tools.js', 'analytics-ui.js', 'app.js', 'auto-summary.js',
+    'case-studies.js', 'cloud-sync.js', 'config.js', 'creator-scroll.js', 'data-tools.js',
+    'detail-navigation.js', 'evidence-tools.js', 'evidence-ui.js', 'insight-context.js',
+    'insight-contract.js', 'insight-tools.js', 'link-reader.js', 'record-delete.js',
+    'record-original.js', 'record-ownership.js', 'reuse-tools.js', 'reuse-ui.js',
+    'six-part-analysis.js', 'storage-guard.js', 'study-tools.js', 'thought-writing.js',
+    'writing-paths.js',
+}
+FRONTEND_CSS = {
+    'analytics.css', 'mobile-safety.css', 'refinement.css', 'reuse.css',
+    'six-part-analysis.css', 'styles.css', 'thought-writing.css', 'writing-paths.css',
+}
 PUBLIC_FILES = frozenset({
-    'index.html', 'self-test.html', 'app.js', 'cloud-sync.js', 'config.js', 'link-reader.js',
-    'data-tools.js', 'case-studies.js', 'storage-guard.js', 'accessibility.js',
-    'self-test.js', 'study-tools.js', 'sw.js', 'styles.css', 'refinement.css',
-    'mobile-safety.css', 'self-test.css', 'manifest.webmanifest', 'icon.svg',
-    'insight-tools.js', 'insight-contract.js', 'insight-context.js',
+    'index.html', 'sw.js', 'manifest.webmanifest', 'assets/icon.svg',
+    'tools/self-test/index.html', 'tools/self-test/self-test.css', 'tools/self-test/self-test.js',
+    *(f'frontend/js/{name}' for name in FRONTEND_JS),
+    *(f'frontend/css/{name}' for name in FRONTEND_CSS),
 })
 
 

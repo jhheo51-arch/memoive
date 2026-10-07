@@ -21,12 +21,12 @@ python tests/preview-safety-check.py
 운영 원본은 TOBEA 저장소의 project/memoive/입니다. Vercel 기준 폴더도 project/memoive/입니다.
 
 ## 주요 파일
-- app.js: 기존 화면·저장·창작 흐름.
-- insight-context.js: 본문 준비·선택 맥락·전송 동의·구조화 답변 표시.
-- insight-contract.js: 브라우저/서버 공용 응답 구조·인용·숫자 존재 검사.
-- insight-tools.js: 기본 질문, 기록 변경 식별, 이전 AI 결과 선택.
-- link-reader.js: 공개 원문 읽기·사진 추출.
-- storage-guard.js / data-tools.js: 저장 안전·백업·분석.
+- frontend/js/app.js: 기존 화면·저장·창작 흐름.
+- frontend/js/insight-context.js: 본문 준비·선택 맥락·전송 동의·구조화 답변 표시.
+- frontend/js/insight-contract.js: 브라우저/서버 공용 응답 구조·인용·숫자 존재 검사.
+- frontend/js/insight-tools.js: 기본 질문, 기록 변경 식별, 이전 AI 결과 선택.
+- frontend/js/link-reader.js: 공개 원문 읽기·사진 추출.
+- frontend/js/storage-guard.js / frontend/js/data-tools.js: 저장 안전·백업·분석.
 - cloudflare-worker/src/insight.mjs: 기록 AI.
 - cloudflare-worker/src/index.js: 창작 AI·Origin/크기/요청 제한.
 - sw.js: 캐시 목록. 새 화면 파일 추가 시 index.html·캐시·serve.py 허용 목록을 함께 확인.

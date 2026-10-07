@@ -2,7 +2,7 @@
 
 [서비스 사용하기](https://memoive.vercel.app/) · [제품 기획서](docs/PRD_MEMOIVE_2026-10-06-v01.md) · [검증 범위](docs/verification.md)
 
-[발표용 요약](docs/submission-presentation-2026-10-07-v01.md) · [발표자료 PPTX](presentation-2026-10-07-v03/output/MEMOIVE-Presentation-2026-10-07-v03.pptx) · [발표 대본 PPTX](presentation-2026-10-07-v03/output/MEMOIVE-Script-2026-10-07-v03.pptx) · [발표 대본 HTML](presentation-2026-10-07-v03/output/MEMOIVE-발표문-2026-10-07-v03.html)
+[발표용 요약](docs/submission-presentation-2026-10-07-v01.md) · [발표자료 PPTX](docs/presentation/2026-10-07-v03/output/MEMOIVE-Presentation-2026-10-07-v03.pptx) · [발표 대본 PPTX](docs/presentation/2026-10-07-v03/output/MEMOIVE-Script-2026-10-07-v03.pptx) · [발표 대본 HTML](docs/presentation/2026-10-07-v03/output/MEMOIVE-발표문-2026-10-07-v03.html)
 
 ![MEMOIVE 운영 화면](assets/project-overview.png)
 
@@ -49,7 +49,22 @@
 3. [기획·검증 근거](docs/planning-evidence-2026-10-06-v01.md): 관찰을 개선 가설로 연결하는 방법.
 4. [기술 검증](docs/verification.md)과 [사용 검증 계획](docs/self-study-plan.md): 확인한 동작과 아직 확인할 효과.
 
-현재 실행 파일은 이 폴더에 하나씩 두고, `api/`는 Vercel 서버 통로, `cloudflare-worker/`는 Gemini 분석·창작 서버, `tests/`는 자동 검사, `docs/`는 기획과 검증 자료로 구분했습니다. 사용하지 않는 이전 복제본과 중복 초기 기획서는 현재 제출 폴더에서 제거했습니다. 이전 내용은 GitHub 변경 기록에서 확인할 수 있습니다.
+## 저장소 구조
+
+기능은 그대로 두고, 성격이 같은 파일을 아래처럼 묶었습니다. 최상위에는 서비스 시작에 필요한 파일과 안내 문서만 남겼습니다.
+
+| 폴더 | 들어 있는 내용 |
+| --- | --- |
+| `frontend/js/` | 화면, 기록, 검색, 창작 등 브라우저 기능 |
+| `frontend/css/` | 화면 디자인과 모바일 대응 |
+| `api/` | Vercel에서 사용하는 동기화·원문·자막 통로 |
+| `cloudflare-worker/` | Gemini 분석·창작 서버 |
+| `assets/` | 아이콘과 소개 이미지 |
+| `docs/` | 기획서, 검증 문서, 발표자료 |
+| `tools/self-test/` | 사용자가 직접 확인하는 기능 점검 화면 |
+| `tests/`, `scripts/` | 자동 검사와 로컬 실행 도구 |
+
+`index.html`, `sw.js`, `manifest.webmanifest`는 서비스가 시작될 때 바로 읽는 파일이라 최상위에 유지했습니다. 파일은 삭제하지 않고 위 폴더로 이동했으며, 이전 위치와 이동 기록은 GitHub 변경 기록에서 확인할 수 있습니다.
 
 ## 직접 사용하며 내린 개선 판단
 

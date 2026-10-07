@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const helpers=require('../insight-tools.js');
-const app=fs.readFileSync(require.resolve('../app.js'),'utf8');
+const helpers=require('../frontend/js/insight-tools.js');
+const app=fs.readFileSync(require.resolve('../frontend/js/app.js'),'utf8');
 const body='반복 작업을 자동화하면 업무에 쓰는 시간을 줄일 수 있습니다. '.repeat(4);
 const record={id:'one',title:'자동화',sourceBody:body,bodySavedAt:'one',summary:body,thought:'보존'};
 assert.notEqual(helpers.basic(record,'기획자').question,helpers.basic(record,'마케터').question);
