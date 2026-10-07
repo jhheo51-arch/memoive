@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const reader=require('../link-reader.js');
+const data=require('../data-tools.js');
+const cases=require('../case-studies.js');
+for(const value of ['',null,'javascript:alert(1)','data:image/svg+xml,test','https://127.0.0.1/a','https://192.168.1.1/a','https://[::1]/a','https://localhost/a','https://host.local/a','https://user:pass@example.com/a'])assert.equal(reader.safeImageUrl(value),'');
+assert.equal(reader.safeImageUrl('/cover.jpg','https://example.com/article'),'https://example.com/cover.jpg');
+assert.equal(reader.readerImage('Markdown Content:\n![logo](https://example.com/logo.png)\n![기사](https://example.com/photo.jpg)','https://example.com'),'https://example.com/photo.jpg');
+assert.equal(reader.readerImage('이미지가 없는 글','https://example.com'),'');
+const raw='Title: 공개 글\nMarkdown Content:\n![기사](https://example.com/photo.jpg)\n'+'본문 내용과 경험을 충분히 적은 문장입니다. '.repeat(10);
+const parsed=reader.parseReaderText(raw,'https://example.com');
+assert.equal(parsed.thumbnailUrl,'https://example.com/photo.jpg');
+assert.ok(!parsed.content.includes('photo.jpg'));
+const record={id:'personal',title:'개인 기록',thought:'수정하지 않음',thumbnailUrl:parsed.thumbnailUrl};
+const restored=data.validateBackup(JSON.stringify({records:[record]})).records[0];
+assert.equal(restored.thumbnailUrl,parsed.thumbnailUrl);assert.equal(restored.thought,record.thought);
+for(const sample of cases.records){const guide=cases.guides[sample.id];assert.ok(guide.context&&guide.reason&&guide.check&&guide.limit);assert.equal(guide.steps.length,2);}
+const css=fs.readFileSync(require.resolve('../refinement.css'),'utf8');
+assert.ok(css.includes('align-items: baseline'));assert.ok(css.includes('font: inherit; line-height: inherit'));
+console.log('PASS image URL safety, extraction and fallback, backup preservation, structured case guides, shared baseline styling');

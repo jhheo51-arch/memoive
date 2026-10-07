@@ -1,0 +1,17 @@
+.studio-page [hidden]{display:none!important}
+.studio-page .studio-start{background:none;padding:0;margin:24px 0;border:0;color:inherit}
+.studio-start h2{font-size:20px;margin:0 0 16px}
+.studio-page .studio-start button,#writing-record-list button{display:grid;grid-template-columns:1fr auto;gap:8px;width:100%;min-height:100px;padding:22px;text-align:left;border:1px solid #d8c7b7;border-radius:20px;background:#fffdfa;color:#302219;margin:12px 0;cursor:pointer;white-space:normal}
+.studio-start button strong{font-size:20px;grid-column:1}
+.studio-start button small,#writing-record-list small{font-size:14px;line-height:1.7;grid-column:1;font-weight:400;color:#725947}
+.studio-start button span{grid-column:2;grid-row:1/3;align-self:center}
+#writing-record-picker{margin:24px 0}#writing-record-picker h2{font-size:20px}
+#writing-record-query{display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:14px;border:1px solid #d8c7b7;border-radius:12px;font:inherit;background:#fffdfa}
+#writing-record-list button{min-height:80px;padding:18px}#writing-record-list strong{overflow-wrap:anywhere;font-size:16px}
+#creator-view #writing-method{grid-column:1/-1;width:100%;box-sizing:border-box;margin:0 0 18px}
+#writing-method h2{font-size:18px;margin:0 0 8px}#writing-method h3{font-size:16px;margin:16px 0 8px}#writing-method p{line-height:1.8}
+#writing-view-record{min-height:44px;margin-top:12px;padding:9px 2px;border:0;background:none;color:#725343;font-size:15px;text-align:left;text-decoration:underline}
+#reuse-autosave{font-size:12px;color:#725947;margin:10px 0 24px}
+#creator-view #writing-materials,#creator-view #reuse-trace,#creator-view .output-use{display:none!important}
+#creator-form{gap:14px}#creator-view #creator-draft{margin-top:24px}
+#record-analysis [data-writing-method]{margin-top:14px;min-height:44px}

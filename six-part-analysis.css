@@ -1,0 +1,10 @@
+#source-evidence-details,#insight-structured,#action-section,.one-line #summary-kind,.one-line #detail-summary,.question > .eyebrow,.question > #question-context,.question > #detail-question{display:none!important}
+.analysis-part{padding:24px 0;border-bottom:1px solid #d8cabc;overflow-wrap:anywhere}
+.analysis-part h3{margin:0 0 16px;font-size:20px;line-height:1.5;color:#38271e}
+.analysis-part p,.analysis-part li{font-size:16px;line-height:1.8}
+.analysis-part p{margin:10px 0}.analysis-part small{font-size:13px;line-height:1.6;color:#715647}
+.analysis-label{display:inline-block;font-size:13px;color:#795640;background:#e9dfd0;padding:3px 9px;border-radius:8px}
+.analysis-evidence{padding-left:24px}.analysis-evidence li{padding-left:4px;margin-bottom:22px}
+.analysis-evidence blockquote{margin:12px 0;padding:10px 14px;border-left:2px solid #a7826b;background:#f8f3ea;color:#38271e;font-weight:400;font-size:15px;line-height:1.8}
+#auto-summary-status:empty{display:none}.one-line{padding-bottom:0!important}
+.insight-options[hidden],#insight-context-fields[hidden],#insight-flow [hidden]{display:none!important}

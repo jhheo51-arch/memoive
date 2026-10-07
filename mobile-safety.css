@@ -1,0 +1,17 @@
+/* Keep the coffee palette and hidden scrollbars; content remains scrollable. */
+:root{--safe-bottom:env(safe-area-inset-bottom,0px)}
+button,a,input,select,textarea,summary{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #79533d;outline-offset:3px}
+.sheet input,.sheet textarea,.sheet select,.creator input,.creator textarea,.creator select{font-size:16px}
+.search input{font-size:16px}.filters button,.capture-types button{min-height:44px}
+.close-sheet,.detail>header button,.creator>header button,.top-actions button{min-width:44px;min-height:44px}
+.sheet,.detail,.creator{max-height:calc(100dvh - 12px);padding-bottom:max(20px,var(--safe-bottom));scroll-padding-block:76px 32px}
+.sheet{overflow-y:auto}
+.sheet header,.creator header,.detail header{flex-shrink:0}
+.creator main,.detail main,.sheet,.record-card{overflow-wrap:anywhere;min-width:0}
+.creator input,.creator textarea,.sheet input,.sheet textarea{max-width:100%;box-sizing:border-box}
+.storage-warning{margin:12px;padding:12px 14px;border:1px solid #a45d40;border-radius:12px;background:#fff3e8;color:#522b1d;font:500 14px/1.65 system-ui,sans-serif;overflow-wrap:anywhere}
+.draft-confirmation{margin:16px;padding:16px;background:#fff3e8;border:1px solid #a45d40;border-radius:14px;font-size:15px;line-height:1.6}.draft-confirmation button{min-height:44px;margin:4px;padding:8px 12px;border:1px solid #725343;border-radius:10px;background:#fffdf9}.draft-confirmation button:last-child{background:#34241e;color:#fff}
+@media(max-width:480px){.bottom-nav{padding-bottom:max(8px,var(--safe-bottom))}.detail,.creator{max-height:100dvh}.sheet{max-height:calc(100dvh - 8px)}.detail-hero h1{overflow-wrap:anywhere}.rhythm-options{flex-wrap:wrap}}
+@media(max-height:500px){.sheet{top:4px;bottom:4px;max-height:calc(100dvh - 8px)}.detail,.creator{top:0;bottom:0;height:100dvh;max-height:100dvh;border-radius:0}.creator main,.detail main{padding-top:20px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

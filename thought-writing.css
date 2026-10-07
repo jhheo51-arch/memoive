@@ -1,0 +1,12 @@
+#creator-view .writing-options{grid-column:1/-1;border:1px solid #d8cec2;border-radius:14px;padding:14px;margin:12px 0;background:#fffdf9}
+#creator-view .writing-options>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:14px;color:#594236}
+#creator-view .writing-options>summary::before{content:'＋';margin-right:8px}#creator-view .writing-options[open]>summary::before{content:'−'}
+#creator-form>label,#creator-form>button,#creator-form>p{grid-column:1/-1}
+#creator-form>label:has(#output-viewpoint){width:100%!important;display:block}
+#creator-view #output-viewpoint{width:100%;min-width:0;min-height:170px;display:block}
+#creator-view textarea,#creator-view input{font-size:16px;max-width:100%;box-sizing:border-box}
+#creator-view textarea{line-height:1.8}#creator-view [hidden]{display:none!important}
+#creator-view .writing-options label{display:block;margin:14px 0}#creator-view .writing-options select{width:100%}
+#creator-view button{min-height:44px}#creator-view .quality-check{display:none}
+#writing-proposal{margin-top:20px}#writing-proposal textarea,#writing-proposal input{width:100%}
+#creator-title{text-wrap:balance}#creator-view,#creator-view *{scrollbar-width:none}#creator-view::-webkit-scrollbar,#creator-view *::-webkit-scrollbar{display:none}

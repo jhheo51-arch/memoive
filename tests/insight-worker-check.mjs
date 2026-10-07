@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { insight } from '../cloudflare-worker/src/insight.mjs';
+const body='반복 작업 자동화의 효과를 실제 사용 시간으로 확인합니다. '.repeat(4);
+const request=(data={title:'가상 검증',body,role:'기획자'})=>new Request('https://worker.test/v1/insight',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+const env={AI_RECORDS_ENABLED:'true',GEMINI_API_KEY:'test-only',GEMINI_MODEL:'test-model',AI_RATE_LIMITER:{limit:async()=>({success:true})}};
+assert.equal((await insight(request(),{})).status,503);
+assert.equal((await insight(request(),{...env,AI_RATE_LIMITER:undefined})).status,503);
+assert.equal((await insight(request(),{...env,AI_RATE_LIMITER:{limit:async()=>({success:false})}})).status,429);
+assert.equal((await insight(request({title:'x',body:'too short',role:'기획자'}),env)).status,400);
+assert.equal((await insight(request({title:'x',body:'가'.repeat(60001),role:'기획자'}),env)).status,400);
+assert.equal((await insight(new Request('https://worker.test/v1/insight',{method:'POST',headers:{'Content-Type':'application/json'},body:'x'.repeat(250001)}),env)).status,413);
+let sent;const original=globalThis.fetch;
+const answer={summary:'자동화 효과 확인',question:'어떤 시간을 측정할까요?',facts:[{claim:'사용 시간으로 자동화 효과를 확인합니다.',kind:'source_fact',sourceId:0}],interpretation:{connection:'반복 작업의 소요 시간을 기록해볼 수 있습니다.',difference:'내 작업에서의 효과는 아직 모릅니다.'},action:{task:'반복 작업을 할 때 시작과 종료 시각을 적어 보세요.',deliverable:'작업 시간 기록',check:'자동화 전후 같은 작업의 소요 시간과 오류를 비교하세요.'},unknowns:['실제 효과는 확인되지 않았습니다.'],clarification:'어떤 반복 작업을 줄이고 싶으세요?',keywords:['반복 작업','시간 기록'],useCase:'반복 작업 시간 비교'};
+try{
+  globalThis.fetch=async(url,options)=>{sent=JSON.parse(options.body);return new Response(JSON.stringify({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(answer)}]}}]}));};
+  const first=await insight(request(),env);assert.equal(first.status,200);assert.equal((await first.json()).analysisVersion,3);
+  const report=await insight(request({title:'금융 업종 분석 리포트',body:'금융 업종의 변화와 사례를 설명합니다. '.repeat(1500),role:'기획자'}),env);assert.equal(report.status,200);
+  assert.ok(sent.systemInstruction.parts[0].text.includes('신뢰할 수 없는 자료'));
+  assert.equal(JSON.parse(sent.contents[0].parts[0].text).role,'기획자');
+  assert.deepEqual(JSON.parse(sent.contents[0].parts[0].text).context,{});
+  assert.equal((await insight(request({title:'가상 검증',body,role:'기획자',context:{concern:'작업 시간 파악',unselected:'절대 보내지 않음'}}),env)).status,200);
+  assert.deepEqual(JSON.parse(sent.contents[0].parts[0].text).context,{concern:'작업 시간 파악'});
+  assert.equal((await insight(request({title:'가상 검증',body,role:'기획자',context:{thought:'가'.repeat(1001)}}),env)).status,400);
+  const titleNumberAnswer={...answer,facts:[{claim:'매년 100억을 쓰는 이유를 설명합니다.',kind:'author_claim',sourceId:0}]};
+  globalThis.fetch=async()=>new Response(JSON.stringify({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(titleNumberAnswer)}]}}]}));
+  assert.equal((await insight(request({title:'매년 100억을 쓰는 이유',body,role:'기획자'}),env)).status,200);
+  const contract=globalThis.MemoiveContract,quoted=body.slice(0,80);
+  assert.throws(()=>contract.validate({...answer,facts:[{claim:'50% 단축',kind:'source_fact',quote:quoted}]},body));
+  assert.throws(()=>contract.validate({...answer,facts:[{claim:'출처 없는 주장',kind:'source_fact',quote:'원문에 없는 가짜 구절입니다.'}]},body));
+  globalThis.fetch=async()=>new Response('{}',{status:429});assert.equal((await insight(request(),env)).status,429);
+  globalThis.fetch=async()=>new Response(JSON.stringify({candidates:[{finishReason:'STOP',content:{parts:[{text:'{"summary":"요약","question":"질문","evidence":["원문에 없는 가짜 근거입니다"]}'}]}}]}));
+  assert.equal((await insight(request(),env)).status,502);
+}finally{globalThis.fetch=original;}
+console.log('PASS disabled/missing limiter, quota, input limits, structured mock response, prompt separation, ungrounded rejection. No live Gemini call.');

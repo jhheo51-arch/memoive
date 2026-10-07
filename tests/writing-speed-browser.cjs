@@ -1,0 +1,42 @@
+const {chromium}=require(process.env.MEMOIVE_PLAYWRIGHT||'playwright');
+const assert=require('node:assert/strict');
+
+(async()=>{
+  const browser=await chromium.launch({channel:'msedge',headless:true});
+  const page=await browser.newPage({viewport:{width:375,height:812},reducedMotion:'reduce'});
+  const errors=[];let aiRequests=0;
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.route('https://**/*',route=>{if(route.request().url().includes('/v1/refine'))aiRequests++;return route.abort();});
+  await page.goto('http://127.0.0.1:4196/');
+  await page.evaluate(()=>openCreator());
+  await page.locator('#output-viewpoint').fill("항상 '와 멋있다'라고 생각했던 불꽃놀이는 기획적으로 풀어낸 유익한 영상. 논리적 사고를 키울 수 있는 좋은 자료.");
+  const start=Date.now();
+  await page.locator('#generate-output').click();
+  await page.locator('#output-body').waitFor({state:'visible'});
+  assert.ok(Date.now()-start<1500,'The first editable draft should appear without an AI round trip.');
+  assert.match(await page.locator('#output-body').inputValue(),/불꽃놀이/);
+  assert.equal(aiRequests,0);
+  await page.evaluate(()=>{window.memoiveConfirm=async()=>true;window.fetch=async(_url,options)=>{window.__lastAiPayload=JSON.parse(options.body);await new Promise(resolve=>setTimeout(resolve,50));return {ok:true,json:async()=>({title:'AI 제안 제목',body:'AI가 제안한 다른 표현'})};};});
+  await page.locator('#writing-ai-suggest').click();
+  await page.locator('#writing-proposal').waitFor({state:'visible'});
+  assert.equal(await page.evaluate(()=>window.__lastAiPayload.draft),null,'An untouched quick draft must not be presented as a user-edited draft.');
+  await page.locator('#writing-dismiss').click();
+  await page.locator('#output-body').fill('내가 수정한 글은 유지돼야 한다.');
+  await page.locator('#writing-ai-suggest').click();
+  await page.locator('#writing-proposal').waitFor({state:'visible'});
+  assert.equal(await page.evaluate(()=>window.__lastAiPayload.draft.body),'내가 수정한 글은 유지돼야 한다.');
+  assert.equal(await page.locator('#output-body').inputValue(),'내가 수정한 글은 유지돼야 한다.');
+  assert.equal(await page.locator('#writing-proposal-body').inputValue(),'AI가 제안한 다른 표현');
+  await page.evaluate(()=>{
+    const record={id:'qa-fast-reuse',type:'article',title:'빠른 글 실험',source:'예시',summary:'입력 단계를 줄이는 방법',thought:'',topics:['실험'],sourceBody:'입력 단계를 줄이는 방법을 설명한 공개 자료입니다.',aiInsights:{}};
+    record.aiInsights[state.role]={sourceStamp:InsightTools.stamp(record),action:{task:'입력 단계를 하나 줄여보자.',deliverable:'빠른 글 초안'}};
+    state.records.push(record);
+    openCreator({recordIds:[record.id],writingMode:'reuse'});
+  });
+  await page.locator('#generate-output').click();
+  assert.match(await page.locator('#output-body').inputValue(),/입력 단계를 하나 줄여보자/);
+  assert.equal(aiRequests,0);
+  assert.deepEqual(errors,[]);
+  await browser.close();
+  console.log('PASS: instant editable draft, no automatic AI request, later AI proposal preserves user edits');
+})().catch(error=>{console.error(error);process.exitCode=1;});

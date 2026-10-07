@@ -3,8 +3,8 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.DataTools = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-  const text = value => typeof value === 'string' ? value.slice(0, 10000) : '';
-  const list = value => Array.isArray(value) ? value.map(text).filter(Boolean).slice(0, 50) : [];
+  const text = value => typeof value === 'string' ? value : '';
+  const list = value => Array.isArray(value) ? value.map(text).filter(Boolean) : [];
   const safeUrl = value => {
     try {
       const url = new URL(value);
@@ -14,26 +14,38 @@
     }
   };
 
+  function linkType(value) {
+    try { const u=new URL(value),h=u.hostname.toLowerCase().replace(/^www\./,'');
+      return h==='youtu.be'||(['youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com'].includes(h)&&(/^\/(watch|shorts\/|embed\/|live\/)/.test(u.pathname)))||((h==='vimeo.com'||h==='player.vimeo.com')&&/^\/(?:video\/)?\d+/.test(u.pathname))||/\.(mp4|webm|mov)$/i.test(u.pathname)?'video':'article';
+    } catch {return 'article';}
+  }
+  function typeLabel(type){return ({article:'ARTICLE',video:'VIDEO',image:'IMAGE',voice:'VOICE',text:'TEXT'})[type]||'TEXT';}
   function cleanRecord(record) {
     if (!record || typeof record !== 'object' || !text(record.id) || !text(record.title)) return null;
     return {
       ...record,
       id: text(record.id),
       type: text(record.type) || 'text',
-      label: text(record.label) || 'TEXT',
+      label: typeLabel(text(record.type)||'text'),
       savedAt: /^\d{4}-\d{2}-\d{2}$/.test(record.savedAt) ? record.savedAt : new Date().toISOString().slice(0, 10),
+      capturedAt: typeof record.capturedAt === 'string' && Number.isFinite(Date.parse(record.capturedAt)) ? new Date(record.capturedAt).toISOString() : '',
       sourceDate: text(record.sourceDate),
       title: text(record.title),
       source: text(record.source),
       url: safeUrl(record.url),
+      thumbnailUrl: safeUrl(record.thumbnailUrl),
       summary: text(record.summary),
+      sourceBody: text(record.sourceBody),
+      bodySavedAt: text(record.bodySavedAt),
+      bodyMethod: text(record.bodyMethod),
       thought: text(record.thought),
+      applicationIdea: text(record.applicationIdea),
       quote: text(record.quote),
       uncertainty: text(record.uncertainty),
       points: list(record.points),
       topics: list(record.topics),
       actions: list(record.actions),
-      evidence: Array.isArray(record.evidence) ? record.evidence.slice(0, 20).map(item => ({ label: text(item?.label), text: text(item?.text) })).filter(item => item.text) : [],
+      evidence: Array.isArray(record.evidence) ? record.evidence.map(item => ({ label: text(item?.label), text: text(item?.text) })).filter(item => item.text) : [],
       confidence: Number.isFinite(Number(record.confidence)) ? Math.max(0, Math.min(100, Number(record.confidence))) : 0,
       revisitOn: /^\d{4}-\d{2}-\d{2}$/.test(record.revisitOn) ? record.revisitOn : ''
     };
@@ -43,16 +55,18 @@
     const data = typeof input === 'string' ? JSON.parse(input) : input;
     if (!data || typeof data !== 'object' || !Array.isArray(data.records)) throw new Error('MEMOIVE 백업 파일이 아니에요.');
     const records = data.records.map(cleanRecord).filter(Boolean);
-    if (!records.length && data.records.length) throw new Error('가져올 수 있는 기록이 없어요.');
+    if (records.length !== data.records.length) throw new Error('잘못된 기록이 포함돼 가져오기를 중단했어요. 기존 기록은 그대로예요.');
+    if (new Set(records.map(record=>record.id)).size!==records.length) throw new Error('같은 ID의 기록이 중복된 백업이에요. 가져오지 않았어요.');
+    if (data.outputs!==undefined && (!Array.isArray(data.outputs) || data.outputs.some(output=>!cleanOutput(output)) || new Set(data.outputs.map(output=>output.id)).size!==data.outputs.length)) throw new Error('잘못되거나 중복된 결과물이 포함돼 가져오기를 중단했어요.');
     const reminderFrequency = ['daily', '3', '1'].includes(String(data.reminderFrequency)) ? String(data.reminderFrequency) : '3';
     const reminderTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(data.reminderTime) ? data.reminderTime : '07:00';
-    return { records, outputs: cleanOutputs(data.outputs), role: text(data.role), resurface: data.resurface !== false, reminderFrequency, reminderTime, analytics: cleanAnalytics(data.analytics) };
+    return { records, dismissedExampleIds: Array.isArray(data.dismissedExampleIds) ? data.dismissedExampleIds.filter(id=>typeof id==='string') : [], outputs: cleanOutputs(data.outputs), role: text(data.role), resurface: data.resurface !== false, reminderFrequency, reminderTime, analytics: cleanAnalytics(data.analytics) };
   }
 
   function cleanOutput(output) {
     if (!output || typeof output !== 'object' || !text(output.id) || !text(output.title)) return null;
     const rawType = output.type === 'social' ? 'social_post' : output.type;
-    const type = ['idea', 'article', 'social_post', 'social_story', 'proposal', 'project'].includes(rawType) ? rawType : 'idea';
+    const type = ['idea', 'article', 'brunch', 'social_post', 'social_story', 'proposal', 'project'].includes(rawType) ? rawType : 'idea';
     const tone = ['insight', 'friendly', 'clear'].includes(output.tone) ? output.tone : 'insight';
     const shareFormat = output.shareFormat === 'story' ? 'story' : 'post';
     const now = new Date().toISOString();
@@ -61,23 +75,30 @@
       type,
       tone,
       shareFormat,
+      draftOrigin: ['ai','basic'].includes(output.draftOrigin) ? output.draftOrigin : 'unknown',
       purpose: text(output.purpose),
       viewpoint: text(output.viewpoint),
       title: text(output.title),
       body: text(output.body),
+      usedAt: text(output.useNote).trim() && Number.isFinite(Date.parse(output.usedAt)) ? output.usedAt : '',
+      useNote: text(output.useNote),
       sourceRecordIds: list(output.sourceRecordIds),
+      workspaceId: text(output.workspaceId),
+      traces: Array.isArray(output.traces) ? output.traces.filter(t=>t&&text(t.id)&&text(t.claim)&&text(t.quote)).map(t=>({id:text(t.id),recordId:text(t.recordId),claim:text(t.claim),quote:text(t.quote),title:text(t.title),url:safeUrl(t.url),kind:['source','interpretation','thought'].includes(t.kind)?t.kind:'source',at:text(t.at)})) : [],
+      sourceLinkedAt: Object.fromEntries(list(output.sourceRecordIds).map(id=>[id,Number.isFinite(Date.parse(output.sourceLinkedAt?.[id]))?output.sourceLinkedAt[id]:''])),
       createdAt: Number.isFinite(Date.parse(output.createdAt)) ? output.createdAt : now,
       updatedAt: Number.isFinite(Date.parse(output.updatedAt)) ? output.updatedAt : now
     };
   }
 
   function cleanOutputs(value) {
-    return Array.isArray(value) ? value.map(cleanOutput).filter(Boolean).slice(0, 500) : [];
+    return Array.isArray(value) ? value.map(cleanOutput).filter(Boolean) : [];
   }
 
   function mergeOutputs(current, incoming) {
-    const outputs = [...cleanOutputs(current), ...cleanOutputs(incoming)];
-    return [...new Map(outputs.map(output => [output.id, output])).values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 500);
+    // Current edits take precedence over an older same-ID backup.
+    const outputs = [...cleanOutputs(incoming), ...cleanOutputs(current)];
+    return [...new Map(outputs.map(output => [output.id, output])).values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
 
   function cleanAnalytics(value) {
@@ -101,7 +122,7 @@
     const safeRecords = (Array.isArray(records) ? records : []).filter(record => !isExample(record));
     const safeEvents = cleanAnalytics({ events }).events;
     const recordIds = new Set(safeRecords.map(record => record.id));
-    const safeOutputs = cleanOutputs(outputs).filter(output => output.sourceRecordIds.some(id => recordIds.has(id)));
+    const safeOutputs = cleanOutputs(outputs).filter(output => !output.sourceRecordIds.length || output.sourceRecordIds.some(id => recordIds.has(id)));
     const convertedIds = new Set(safeOutputs.flatMap(output => output.sourceRecordIds).filter(id => recordIds.has(id)));
     const typeCounts = safeRecords.reduce((counts, record) => {
       counts[record.type || 'text'] = (counts[record.type || 'text'] || 0) + 1;
@@ -121,18 +142,37 @@
       helpfulRate: ratings.length ? Math.round(helpful / ratings.length * 100) : 0,
       reuseCount: safeEvents.filter(event => event.name === 'record_reused' && recordIds.has(event.recordId)).length,
       outputCount: safeOutputs.length,
+      usedOutputCount: safeOutputs.filter(output => output.usedAt && output.useNote.trim()).length,
       convertedCount: convertedIds.size,
       conversionRate: total ? Math.round(convertedIds.size / total * 100) : 0
     };
   }
 
   const exampleIds = new Set(['daangn-dangbeoni', 'design-memory', 'voice-capture', 'image-timeline', 'text-question']);
-  function isExample(record) { return exampleIds.has(record?.id); }
+  function isExample(record) { if(exampleIds.has(record?.id)&&record?.ownership==='user-confirmed')return false;return record?.isExample === true || exampleIds.has(record?.id) || ['example-toss-experiments','example-socar-customer','example-musinsa-experience'].includes(record?.id); }
+  function withExamples(records, examples) {
+    const key = value => { try { const u = new URL(value); u.hash = ''; return decodeURI(u.href).replace(/\/$/, ''); } catch { return ''; } };
+    const merged = [...records];
+    for (const sample of examples) {
+      if (!merged.some(record => record.id === sample.id || (key(record.url) && key(record.url) === key(sample.url)))) merged.push({...sample});
+    }
+    return merged;
+  }
+  function recordProgress(record, outputs) {
+    const linked = cleanOutputs(outputs).filter(output => output.sourceRecordIds.includes(record.id)).sort((a,b) => b.updatedAt.localeCompare(a.updatedAt));
+    return {hasThought:Boolean(record.thought?.trim()), output:linked[0] || null, used:linked.some(output => output.usedAt && output.useNote.trim())};
+  }
   function matchesQuery(record, query = '') {
     const normalize = value => String(value || '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g, ' ').trim();
     const haystack = normalize([record.title, record.source, record.url, record.summary, record.thought,
-      ...(record.topics || []), ...(record.points || []), ...(record.evidence || []).map(item => item.text)].join(' '));
+      record.applicationIdea, ...(record.topics || []), ...(record.points || []), ...(record.evidence || []).map(item => item.text)].join(' '));
     return normalize(query).split(' ').filter(Boolean).every(word => haystack.includes(word));
+  }
+
+  // Legacy records without a time retain their relative order on the same day.
+  function sortRecords(records) {
+    const time = record => Number.isFinite(Date.parse(record.capturedAt)) ? Date.parse(record.capturedAt) : 0;
+    return [...records].sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')) || time(b) - time(a));
   }
 
   function mergeRecords(current, incoming) {
@@ -149,7 +189,7 @@
         actions: [...new Set([...(existing.actions || []), ...(record.actions || [])])]
       };
     });
-    return merged.sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+    return sortRecords(merged);
   }
 
   const stopWords = new Set(['먼저','다시','기록','생각','내용','사용자','위해','대한','있는','하는','하면','있어요','해요','것을','그리고','하지만','기능','제품']);
@@ -191,6 +231,7 @@
     const hook = hooks[tone];
     const firstInsight = safeRecords[0].summary;
     const drafts = {
+      brunch: { title: `${focus}, 기록에서 시작된 질문`, body: `## 마음에 남은 질문\n${purpose || '[이 글에서 함께 생각해 볼 질문을 적어 주세요.]'}\n\n## 기록을 읽으며\n${evidenceLines.join('\n\n')}\n\n## 나의 관점\n${viewpoint || '[직접 느낀 점이나 생각을 적어 주세요. 경험은 임의로 만들지 않습니다.]'}\n\n## 글을 닫으며\n[앞의 관점을 돌아보며 독자에게 남기고 싶은 질문을 적어 주세요.]\n\n참고한 기록\n${safeRecords.map(r => `${r.title}${r.url ? ' — '+r.url : ''}`).join('\n')}` },
       idea: { title: `${focus}에서 발견한 실행 아이디어`, body: `## 만들고 싶은 변화\n${intent}\n\n## 영감에서 발견한 것\n${insights}\n\n## 나의 관점\n${view}\n\n## 가장 작은 다음 행동\n오늘 바로 시험할 수 있는 한 가지 행동을 정하고, 결과를 다시 기록한다.` },
       article: { title: `${focus}, 저장한 정보가 나의 관점이 되는 순간`, body: `${hook}\n\n## 기록에서 확인한 것\n${insights}\n\n## 나의 관점\n${view}\n\n## 이 관점을 뒷받침한 기록\n${evidence}\n\n## 다음으로 이어갈 것\n${intent}. 그래서 가장 작은 실험부터 시작하고, 무엇이 달라졌는지 다시 기록해보려 합니다.` },
       social_post: { title: `${focus}, 저장에서 실행으로`, body: `${hook}\n\n기록에서 확인한 것\n${insights}\n\n나의 관점\n${view}\n\n다음 행동\n${intent}. 오늘 바로 시험할 수 있는 한 가지부터 시작합니다.\n\n#영감기록 #생각정리 #MEMOIVE` },
@@ -201,5 +242,5 @@
     return drafts[type] || drafts.idea;
   }
 
-  return { validateBackup, mergeRecords, cleanOutputs, mergeOutputs, cleanAnalytics, mergeAnalytics, analyticsSummary, relatedRecords, toMarkdown, buildDraft, isExample, matchesQuery };
+  return { linkType, typeLabel, sortRecords, validateBackup, mergeRecords, cleanOutputs, mergeOutputs, cleanAnalytics, mergeAnalytics, analyticsSummary, relatedRecords, toMarkdown, buildDraft, isExample, matchesQuery, withExamples, recordProgress };
 });

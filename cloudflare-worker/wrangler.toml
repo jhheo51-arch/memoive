@@ -2,6 +2,18 @@ name = "memoive-gemini"
 main = "src/index.js"
 compatibility_date = "2026-09-26"
 
+[placement]
+region = "gcp:asia-northeast3"
+
 [vars]
-ALLOWED_ORIGIN = "https://memoive-private-20260926.sooyeon-jun-0389.chatgpt.site"
+ALLOWED_ORIGIN = "https://memoive-private-20260926.sooyeon-jun-0389.chatgpt.site,https://memoive.vercel.app"
 GEMINI_MODEL = "gemini-3.5-flash-lite"
+AI_RECORDS_ENABLED = "true"
+# Before enabling: verify GEMINI_MODEL and actual quotas in this API project.
+# Configure AI_RATE_LIMITER using an unused account namespace ID.
+# Per-location rate limiting is not a global daily quota or a billing cap.
+
+[[ratelimits]]
+name = "AI_RATE_LIMITER"
+namespace_id = "20261005"
+simple = { limit = 5, period = 60 }

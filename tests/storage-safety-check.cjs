@@ -1,0 +1,15 @@
+// Synthetic failure injection. Does not inspect or modify any real browser data.
+const assert=require('node:assert/strict'),Guard=require('../storage-guard.js'),Data=require('../data-tools.js');
+const record={id:'fixture',title:'가상 기록',topics:[],thought:'보존할 생각'},initial={records:[record],outputs:[]};
+function fake(seed={}){const values=new Map(Object.entries(seed));return {values,getItem:key=>values.get(key)??null,setItem(key,value){if(this.fail===key)throw Error('quota');values.set(key,value)}};}
+let checks=0;
+function test(name,fn){fn();checks++;console.log('PASS '+name);}
+test('snapshot failure cannot block main save',()=>{const s=fake({main:JSON.stringify(initial)}),g=Guard.create(()=>s,'main','snapshot');g.read();s.fail='snapshot';g.commit({...initial,role:'연구자'});assert.equal(JSON.parse(s.getItem('main')).role,'연구자');});
+test('quota failure preserves exact prior bytes',()=>{const s=fake({main:JSON.stringify(initial)}),g=Guard.create(()=>s,'main','snapshot');g.read();s.fail='main';assert.throws(()=>g.commit({records:[]}),{name:'StorageSafetyError'});assert.equal(s.getItem('main'),JSON.stringify(initial));});
+test('stale tab cannot overwrite newer records',()=>{const s=fake(),a=Guard.create(()=>s,'main','snapshot'),b=Guard.create(()=>s,'main','snapshot');a.read();b.read();a.commit(initial);assert.throws(()=>b.commit({records:[]}),{name:'StorageSafetyError'});assert.deepEqual(JSON.parse(s.getItem('main')),initial);});
+test('corrupt primary uses snapshot read-only and retains damaged bytes',()=>{const s=fake({main:'broken',snapshot:JSON.stringify(initial)}),g=Guard.create(()=>s,'main','snapshot');assert.deepEqual(g.read(),initial);assert.ok(g.warning);assert.throws(()=>g.commit(initial));assert.equal(s.getItem('main'),'broken');});
+test('blocked storage reports recoverable error',()=>{const g=Guard.create(()=>{throw Error('SecurityError')},'main','snapshot');assert.equal(g.read(),null);assert.ok(g.warning);assert.throws(()=>g.commit(initial),{name:'StorageSafetyError'});});
+test('mixed valid and malformed backups are rejected atomically',()=>{assert.throws(()=>Data.validateBackup({records:[record,{id:'invalid'}]}));assert.throws(()=>Data.validateBackup({records:[record],outputs:[{}]}));assert.throws(()=>Data.validateBackup({records:[record,record]}));});
+test('long texts and >500 outputs survive backup normalization',()=>{const long='가'.repeat(12000),outputs=Array.from({length:501},(_,i)=>({id:`o${i}`,title:'제목',body:long,sourceRecordIds:['fixture']}));const backup=Data.validateBackup({records:[{...record,thought:long}],outputs});assert.equal(backup.records[0].thought,long);assert.equal(backup.outputs[500].body,long);assert.equal(backup.outputs.length,501);});
+test('older same-ID output backup cannot replace current edit',()=>{const result=Data.mergeOutputs([{id:'o',title:'현재',body:'새 글'}],[{id:'o',title:'이전',body:'옛 글'}]);assert.equal(result.length,1);assert.equal(result[0].body,'새 글');});
+console.log(`${checks} synthetic checks passed. Not human usability or effectiveness evidence.`);

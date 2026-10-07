@@ -17,7 +17,7 @@
     const text = key => typeof row[key] === 'string' ? row[key].slice(0,4000) : '';
     if (!text('evidence').trim() || !text('friction').trim()) throw new Error('완료 근거와 막힌 점을 남겨주세요.');
     return { id: row.id.slice(0,200), participant:'maker', scenario:row.scenario, method:row.method, outcome:row.outcome,
-      startedAt:row.startedAt, endedAt:row.endedAt, seconds:Math.round(row.seconds), evidence:text('evidence'), friction:text('friction'), next:text('next'), device:text('device'), version:text('version'), previousId:text('previousId'), change:text('change') };
+      startedAt:row.startedAt, endedAt:row.endedAt, seconds:Math.round(row.seconds), evidence:text('evidence'), friction:text('friction'), next:text('next'), device:text('device'), version:text('version'), previousId:text('previousId'), change:text('change'), caseId:text('caseId'), decisionId:text('decisionId'), taskSet:text('taskSet'), frictionStage:text('frictionStage'), frictionReason:text('frictionReason') };
   }
   function parseBackup(value) {
     const data = typeof value === 'string' ? JSON.parse(value) : value;
@@ -29,17 +29,17 @@
     return [...new Map([...incoming, ...current].map(row => [row.id, validate(row)])).values()].sort((a,b)=>b.startedAt.localeCompare(a.startedAt));
   }
   function summarize(rows) {
-    const keys=[...new Set(rows.map(row=>JSON.stringify([row.scenario,row.method,row.version||'버전 미기록'])))];
+    const keys=[...new Set(rows.map(row=>JSON.stringify([row.scenario,row.method,row.version||'버전 미기록',row.device||'기기 미기록',row.taskSet||'자료 조건 미기록',row.caseId||''])))];
     return keys.map(key => {
-      const [scenario,method,version]=JSON.parse(key), info=scenarios[scenario], label=methods[method];
-      const group=rows.filter(row=>row.scenario===scenario && row.method===method && (row.version||'버전 미기록')===version), done=group.filter(row=>row.outcome==='success');
+      const [scenario,method,version,device,taskSet,caseId]=JSON.parse(key), info=scenarios[scenario], label=methods[method];
+      const group=rows.filter(row=>row.scenario===scenario && row.method===method && (row.version||'버전 미기록')===version&&(row.device||'기기 미기록')===device&&(row.taskSet||'자료 조건 미기록')===taskSet&&(row.caseId||'')===caseId), done=group.filter(row=>row.outcome==='success');
       const times=done.map(row=>row.seconds).sort((a,b)=>a-b), middle=Math.floor(times.length/2);
-      return { label:`${info.label} · ${label} · ${version}`, attempts:group.length, successes:done.length,
+      return { label:`${info.label} · ${label} · ${version} · ${device} · ${taskSet}`, attempts:group.length, successes:done.length,
         median:times.length ? (times.length%2 ? times[middle] : (times[middle-1]+times[middle])/2) : null };
     });
   }
   function csv(rows) {
-    const keys=['id','startedAt','scenario','method','outcome','seconds','evidence','friction','next','device','version','previousId','change'];
+    const keys=['id','startedAt','scenario','method','outcome','seconds','evidence','friction','next','device','version','previousId','change','caseId','decisionId','taskSet','frictionStage','frictionReason'];
     const cell=value=>'"'+String(value??'').replace(/^[\s]*[=+@-]/, value=>"'"+value).replace(/"/g,'""')+'"';
     return '\uFEFF'+[keys,...rows.map(row=>keys.map(key=>row[key]))].map(row=>row.map(cell).join(',')).join('\r\n');
   }
