@@ -1,1 +1,0 @@
-ALTER TABLE `followup_tasks` ADD `request_detail` text;

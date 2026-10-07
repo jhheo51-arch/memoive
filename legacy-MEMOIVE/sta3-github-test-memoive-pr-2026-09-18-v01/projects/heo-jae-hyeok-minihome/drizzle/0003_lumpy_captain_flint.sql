@@ -1,1 +1,0 @@
-ALTER TABLE `site_settings` ADD `youtube_url` text DEFAULT '' NOT NULL;

@@ -3,7 +3,7 @@
 
 ## 현재 기준
 1. [README](README.md): 실행·검사·공개 서비스.
-2. [최신 PRD](docs/PRD_MEMOIVE_2026-10-05-v01.md): 2026-10-05, Sites 저장 버전 23 / 화면 29-context.
+2. [제품 기획서](docs/PRD_MEMOIVE_2026-10-06-v01.md): 2026-10-07 운영 보완 포함.
 3. [검증 범위](docs/verification.md): 실제 효과와 기술 검사의 구분.
 4. [Worker 운영 안내](cloudflare-worker/README.md).
 
@@ -16,9 +16,9 @@ python scripts/serve.py --port 4182
 node scripts/check.mjs
 python tests/preview-safety-check.py
 ```
-검사는 합성 데이터이며 실 AI 호출을 하지 않습니다. 다른 기기·브라우저에는 저장 기록이 자동으로 오지 않습니다.
+검사는 합성 데이터이며 실 AI 호출을 하지 않습니다. 다른 기기·브라우저는 소유자 코드로 연결하면 같은 비공개 저장소를 사용합니다.
 
-공개 저장소는 앱 파일이 memoive/에 있고 Sites 원본은 dist/에 있습니다. Worker·시험 파일의 상대 경로가 다릅니다. 동기화 시 경로를 그대로 복사해 실행을 깨뜨리지 마세요.
+운영 원본은 TOBEA 저장소의 project/memoive/입니다. Vercel 기준 폴더도 project/memoive/입니다.
 
 ## 주요 파일
 - app.js: 기존 화면·저장·창작 흐름.
