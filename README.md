@@ -95,13 +95,6 @@ npm test
 
 정적 화면은 API 키 없이 열리지만, 운영 AI 서버는 허용된 사이트 주소만 받으므로 로컬 AI 호출은 거절될 수 있습니다.
 
-<details>
-<summary>이전 공개 발표자료 보관본 (2026-10-07)</summary>
-
-[발표자료 PPTX](docs/presentation/2026-10-07-v03/output/MEMOIVE-Presentation-2026-10-07-v03.pptx)와 [발표 대본](docs/presentation/2026-10-07-v03/output/MEMOIVE-발표문-2026-10-07-v03.html)은 당시 공개한 보관본입니다. 현재 구현과 검증 범위는 위 문서를 기준으로 확인해 주세요.
-
-</details>
-
 ## 저장소 구조
 
 | 폴더 | 내용 |
