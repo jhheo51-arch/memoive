@@ -2,7 +2,7 @@
 
 자료를 저장한 순간의 생각을 남기고, 필요한 때 다시 찾아 글과 기획으로 이어 쓰는 웹 서비스입니다.
 
-[서비스 사용하기](https://memoive.vercel.app/) | [발표자료](docs/presentation/MEMOIVE-Presentation.pptx) | [제품 기획서](docs/PRD_MEMOIVE_2026-10-06-v01.md)
+[서비스 사용하기](https://memoive.vercel.app/) | [제품 기획서](docs/PRD_MEMOIVE_2026-10-06-v01.md)
 
 ## 소개
 
