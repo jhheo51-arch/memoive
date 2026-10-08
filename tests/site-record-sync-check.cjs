@@ -1,25 +1,14 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-let chromium;
-try{
-  ({chromium}=require(process.env.MEMOIVE_PLAYWRIGHT||'C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
-}catch{
-  const app=fs.readFileSync(path.join(__dirname,'..','frontend','js','app.js'),'utf8');
-  assert.match(app,/const siteDemoRecords=\[/);
-  assert.match(app,/AI 전환, 우리가 도운 건 돕는 사람이었습니다/);
-  assert.match(app,/function syncSiteDemoRecords\(records,dismissedIds=\[\]\)/);
-  assert.match(app,/records:syncSiteDemoRecords\(DataTools\.withExamples/);
-  console.log('PASS: public Sites demo record definitions and saved-state migration are wired. Browser check skipped without Playwright.');
-  process.exit(0);
-}
+const {chromium,baseURL,blockExternal}=require('./browser-support.cjs');
 
 (async()=>{
-  const browser=await chromium.launch({channel:'msedge',headless:true});
+  const browser=await chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:390,height:844}});
   try{
-    await page.route('https://**/*',route=>route.abort());
-    await page.goto('http://127.0.0.1:4182/');
+    await blockExternal(page);
+    await page.goto(baseURL);
     assert.equal(await page.locator('#home-loading').isHidden(),true);
     assert.equal(await page.locator('.recent').isVisible(),true);
     assert.equal(await page.locator('#home-records [data-record-id]').count(),2);

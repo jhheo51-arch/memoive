@@ -3,5 +3,16 @@
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "2.57.4"
+  },
+  "devDependencies": {
+    "playwright": "1.64.0"
+  },
+  "scripts": {
+    "test": "npm run test:synthetic && npm run test:browser",
+    "test:synthetic": "node scripts/check.mjs",
+    "test:browser": "node scripts/browser-check.mjs"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

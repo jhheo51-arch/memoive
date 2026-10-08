@@ -74,7 +74,6 @@
 3. [기술 검증](docs/verification.md): 확인한 동작과 검사 범위
 4. [사용 검증 계획](docs/self-study-plan.md): 아직 확인할 효과
 5. [구현 및 검증 상세](docs/implementation-notes-2026-10-07.md): 저장, AI, 자막과 운영 주의사항
-6. [발표자료 PPTX](docs/presentation/2026-10-07-v03/output/MEMOIVE-Presentation-2026-10-07-v03.pptx) 및 [발표 대본](docs/presentation/2026-10-07-v03/output/MEMOIVE-발표문-2026-10-07-v03.html)
 
 Python이 있다면 저장소 최상위에서 아래 명령을 실행하고 `http://127.0.0.1:4182/`를 여세요.
 
@@ -82,7 +81,26 @@ Python이 있다면 저장소 최상위에서 아래 명령을 실행하고 `htt
 python -m http.server 4182 --directory .
 ```
 
-전체 합성 검사는 `node scripts/check.mjs`로 실행합니다. 정적 화면은 API 키 없이 열리지만, 운영 AI 서버는 허용된 사이트 주소만 받으므로 로컬 AI 호출은 거절될 수 있습니다.
+Node.js 24 이상에서 다음 순서로 검사합니다.
+
+```sh
+npm ci
+npx playwright install chromium
+npm test
+```
+
+`npm test`는 합성 자료 검사와 두 개의 필수 화면 검사를 모두 실행합니다. 화면 검사는 별도의 로컬 서버와 새 브라우저 저장소를 사용하며 외부 요청을 차단합니다. 브라우저가 설치되지 않았거나 화면 검사가 실패하면 전체 검사가 실패합니다. GitHub에서도 같은 검사를 실행합니다. 합성 검사만 실행하려면 `npm run test:synthetic`, 화면 검사만 실행하려면 `npm run test:browser`를 사용합니다.
+
+온라인 저장은 최초 생성과 기존 수정으로 구분합니다. 이미 저장된 자료를 버전 없이 다시 생성하거나 오래된 버전으로 수정하면 거절하며, 두 기기의 최초 저장 경쟁도 가상 저장소로 검사합니다. 실제 개인 기록을 시험 자료로 사용하지 않습니다.
+
+정적 화면은 API 키 없이 열리지만, 운영 AI 서버는 허용된 사이트 주소만 받으므로 로컬 AI 호출은 거절될 수 있습니다.
+
+<details>
+<summary>이전 공개 발표자료 보관본 (2026-10-07)</summary>
+
+[발표자료 PPTX](docs/presentation/2026-10-07-v03/output/MEMOIVE-Presentation-2026-10-07-v03.pptx)와 [발표 대본](docs/presentation/2026-10-07-v03/output/MEMOIVE-발표문-2026-10-07-v03.html)은 당시 공개한 보관본입니다. 현재 구현과 검증 범위는 위 문서를 기준으로 확인해 주세요.
+
+</details>
 
 ## 저장소 구조
 
