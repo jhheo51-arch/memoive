@@ -1,17 +1,12 @@
 const assert=require('node:assert/strict');
-let chromium;
-try{
-  ({chromium}=require('C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
-}catch{
-  console.log('SKIP: capture reset browser check needs the local Codex Playwright runtime.');
-  process.exit(0);
-}
+const {chromium,baseURL,blockExternal}=require('./browser-support.cjs');
 
 (async()=>{
-  const browser=await chromium.launch({channel:'msedge',headless:true});
+  const browser=await chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:390,height:844}});
   try{
-    await page.goto('http://127.0.0.1:4182/');
+    await blockExternal(page);
+    await page.goto(baseURL);
     await page.evaluate(()=>{finishLinkRecord=async()=>{}});
     await page.evaluate(()=>openSheet('#capture-sheet'));
     await page.locator('#capture-link').fill('invalid-address');

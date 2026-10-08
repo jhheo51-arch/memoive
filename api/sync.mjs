@@ -38,8 +38,9 @@ export function validateSyncState(input) {
 }
 
 export function versionFromEtag(value = '') {
-  const match = String(value).match(/^v(\d+)$/);
-  return match ? Number(match[1]) : 0;
+  const match = String(value).match(/^v([1-9]\d*)$/);
+  const version = match ? Number(match[1]) : 0;
+  return Number.isSafeInteger(version) && version < Number.MAX_SAFE_INTEGER ? version : 0;
 }
 
 export { authorized };
@@ -71,7 +72,7 @@ async function readCloudState(client) {
   return data ? { data: validateSyncState(data.payload), version: Number(data.version) || 1, updatedAt: data.updated_at } : null;
 }
 
-export default {
+export function createSyncHandler({ createClient = supabaseAdmin } = {}) { return {
   async fetch(request) {
     const cors = corsHeaders(request);
     const options = preflight(request);
@@ -79,7 +80,7 @@ export default {
     if (request.headers.get('Origin') && !Object.keys(cors).length) return json({ message: '허용되지 않은 서비스 주소예요.' }, 403);
     if (!await authorized(request)) return json({ message: '소유자 연결 코드를 확인해 주세요.' }, 401, cors);
     let client;
-    try { client = supabaseAdmin(); }
+    try { client = createClient(); }
     catch (error) { return json({ message: error.message }, 503, cors); }
 
     if (request.method === 'GET') {
@@ -97,7 +98,9 @@ export default {
 
     try {
       const payload = await readBody(request);
-      const currentVersion = versionFromEtag(cleanText(request.headers.get('If-Match'), 100));
+      const ifMatch = request.headers.get('If-Match');
+      const currentVersion = versionFromEtag(ifMatch);
+      if (ifMatch !== null && !currentVersion) return json({ message: '저장 버전이 올바르지 않아요. 최신 기록을 다시 불러와 주세요.' }, 400, cors);
       let row;
       if (currentVersion) {
         const { data, error } = await client
@@ -113,9 +116,10 @@ export default {
       } else {
         const { data, error } = await client
           .from('memoive_owner_state')
-          .upsert({ id: OWNER_ID, payload, version: 1, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+          .insert({ id: OWNER_ID, payload, version: 1, updated_at: new Date().toISOString() })
           .select('version,updated_at')
           .single();
+        if (error?.code === '23505') return json({ message: '이미 저장된 기록이 있어요. 최신 기록을 다시 불러온 뒤 저장해 주세요.' }, 412, cors);
         if (error) throw error;
         row = data;
       }
@@ -124,4 +128,6 @@ export default {
       return json({ message: error.message || 'Supabase에 기록을 저장하지 못했어요.' }, 400, cors);
     }
   }
-};
+}; }
+
+export default createSyncHandler();
