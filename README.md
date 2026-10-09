@@ -2,7 +2,7 @@
 
 자료를 저장한 순간의 생각을 남기고, 필요한 때 다시 찾아 글과 기획으로 이어 쓰는 웹 서비스입니다.
 
-[서비스 사용하기](https://memoive.vercel.app/) | [제품 기획서](docs/PRD_MEMOIVE_2026-10-06-v01.md)
+[서비스 사용하기](https://memoive.vercel.app/) | [제품 기획서](docs/PRD_MEMOIVE_2026-10-06-v01.md) | [검증 기록](docs/verification.md) | [문서 안내](docs/README-DETAILS.md)
 
 ## 소개
 
@@ -69,6 +69,8 @@ npm test
 브라우저 검사는 임시 로컬 서버와 새 저장 공간을 사용하며 외부 요청을 차단합니다. 검사 명령과 저장 정책은 [실행 및 검증 상세](docs/README-DETAILS.md)를 참고하세요.
 
 ## 문서와 코드 안내
+
+처음 확인할 자료는 제품 기획서, 검증 기록, 사용자 검증 계획입니다. 이전 화면 확인 자료와 구현 메모는 [문서 안내](docs/README-DETAILS.md)에 보관했습니다.
 
 | 목적 | 위치 |
 |---|---|
