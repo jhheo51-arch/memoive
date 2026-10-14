@@ -38,6 +38,13 @@
     state.outputs=DataTools.cleanOutputs(clean.outputs);
     state.analytics=DataTools.cleanAnalytics(clean.analytics);
     state.role=clean.role||state.role;
+    // Cloud copies from older app versions have no perspectives; never let them erase local ones.
+    state.perspectives=PerspectiveTools.merge(clean.perspectives,state.perspectives);
+    state.principles=ReflectionTools.mergePrinciples(state.principles,clean.principles);
+    state.reflections={...state.reflections,...ReflectionTools.cleanReflections(clean.reflections)};
+    const syncedPerspective=PerspectiveTools.find(clean.perspectiveId,state.perspectives);
+    state.perspectiveId=syncedPerspective?syncedPerspective.id:PerspectiveTools.idForRole(state.role);
+    if(syncedPerspective)state.role=syncedPerspective.base;
     state.resurface=clean.resurface;
     state.reminderFrequency=clean.reminderFrequency;
     state.reminderTime=clean.reminderTime;

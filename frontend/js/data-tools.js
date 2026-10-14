@@ -20,10 +20,85 @@
     } catch {return 'article';}
   }
   function typeLabel(type){return ({article:'ARTICLE',video:'VIDEO',image:'IMAGE',voice:'VOICE',text:'TEXT'})[type]||'TEXT';}
+
+  // Thoughts are kept per perspective in `thoughts`; `thought` stays as the joined plain text
+  // so search, related records, drafts, AI context and older app versions keep working.
+  const isoOrEmpty = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : '';
+  function cleanThoughts(value) {
+    if (!Array.isArray(value)) return [];
+    const entries = value.slice(0, 50).map(entry => {
+      if (!entry || typeof entry !== 'object' || !text(entry.id)) return null;
+      const sections = Array.isArray(entry.sections) ? entry.sections.slice(0, MAX_SECTIONS).map(cleanSection) : [];
+      if (!sections.some(section => section.text)) return null;
+      const clean = { id: text(entry.id), perspectiveId: text(entry.perspectiveId), perspectiveName: text(entry.perspectiveName).slice(0, 20), sections, createdAt: isoOrEmpty(entry.createdAt), updatedAt: isoOrEmpty(entry.updatedAt) };
+      return entry.kind === 'followup' ? { ...clean, kind: 'followup' } : clean;
+    }).filter(Boolean);
+    return [...new Map(entries.map(entry => [entry.id, entry])).values()];
+  }
+  // A section is free text (no prompt), a template prompt, or a question the person answered.
+  const MAX_SECTIONS = 10, SECTION_SOURCES = ['question', 'ai-question'];
+  function cleanSection(section) {
+    const clean = { prompt: text(section?.prompt).slice(0, 160), text: text(section?.text).trim() };
+    return SECTION_SOURCES.includes(section?.source) && clean.prompt ? { ...clean, source: section.source } : clean;
+  }
+  function thoughtEntryText(entry) { return entry.sections.map(section => section.text).filter(Boolean).join('\n'); }
+  function composeThought(entries) { return entries.map(thoughtEntryText).filter(Boolean).join('\n'); }
+  function textId(value) { let hash = 0; for (const char of value) hash = (hash * 31 + char.codePointAt(0)) >>> 0; return hash.toString(36); }
+  function freeEntry(id, value) { return { id, perspectiveId: '', perspectiveName: '', sections: [{ prompt: '', text: value }], createdAt: '', updatedAt: '' }; }
+  // Older writers (capture notes, duplicate merges, older devices) only change `thought`.
+  // Anything there that the entries do not already hold becomes a free entry, so nothing is lost.
+  function normalizeThoughts(record) {
+    const thoughts = cleanThoughts(record?.thoughts), legacy = text(record?.thought).trim();
+    if (!thoughts.length) return { thoughts: legacy ? [freeEntry('legacy', legacy)] : [], thought: legacy };
+    const composed = composeThought(thoughts);
+    if (legacy && legacy !== composed) {
+      const extra = composed && legacy.startsWith(composed) ? legacy.slice(composed.length).trim() : legacy;
+      if (extra && !composed.includes(extra)) thoughts.push(freeEntry(`extra-${textId(extra)}`, extra));
+    }
+    return { thoughts, thought: composeThought(thoughts) };
+  }
+  // Saves one perspective's thought on a record. Empty sections remove that entry.
+  function upsertThought(record, { entryId = '', perspectiveId = '', perspectiveName = '', sections = [] }, now = new Date().toISOString()) {
+    const { thoughts } = normalizeThoughts(record);
+    // Unanswered questions are not kept.
+    const clean = sections.slice(0, MAX_SECTIONS).map(cleanSection).filter(section => section.text || !section.source);
+    const index = thoughts.findIndex(entry => entryId ? entry.id === entryId : perspectiveId && entry.perspectiveId === perspectiveId && entry.kind !== 'followup');
+    if (!clean.some(section => section.text)) { if (index >= 0) thoughts.splice(index, 1); }
+    else if (index >= 0) thoughts[index] = { ...thoughts[index], perspectiveId, perspectiveName: text(perspectiveName).slice(0, 20), sections: clean, updatedAt: now };
+    else thoughts.push({ id: `thought-${textId(`${perspectiveId}|${now}|${Math.random()}`)}`, perspectiveId, perspectiveName: text(perspectiveName).slice(0, 20), sections: clean, createdAt: now, updatedAt: now });
+    return { thoughts, thought: composeThought(thoughts) };
+  }
+  // A later thought added on another day; earlier thoughts are never edited by it.
+  function appendFollowup(record, { perspectiveId = '', perspectiveName = '', text: value = '' }, now = new Date().toISOString()) {
+    const { thoughts } = normalizeThoughts(record), clean = text(value).trim();
+    if (clean) thoughts.push({ id: `followup-${textId(`${now}|${clean}`)}`, kind: 'followup', perspectiveId, perspectiveName: text(perspectiveName).slice(0, 20), sections: [{ prompt: '', text: clean }], createdAt: now, updatedAt: now });
+    return { thoughts, thought: composeThought(thoughts) };
+  }
+  const localDay = iso => { const date = new Date(iso); return Number.isFinite(date.getTime()) ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : ''; };
+  // North star: the person came back on a later day and added to or changed their thought.
+  function revisitedThought(record) {
+    const saved = text(record?.savedAt);
+    return normalizeThoughts(record).thoughts.some(entry => entry.kind === 'followup' || [entry.createdAt, entry.updatedAt].some(iso => iso && localDay(iso) > saved));
+  }
+  function mergeThoughts(existing, incoming) {
+    const merged = normalizeThoughts(existing).thoughts;
+    normalizeThoughts(incoming).thoughts.forEach(entry => {
+      const index = merged.findIndex(item => item.id === entry.id);
+      if (index < 0) { if (!merged.some(item => thoughtEntryText(item) === thoughtEntryText(entry))) merged.push(entry); return; }
+      const current = merged[index];
+      if (thoughtEntryText(current) === thoughtEntryText(entry)) return;
+      // Timestamped edits of the same entry: newer wins. Untimed legacy text: keep both.
+      if (current.updatedAt && entry.updatedAt) { if (entry.updatedAt > current.updatedAt) merged[index] = entry; }
+      else merged.push({ ...entry, id: `extra-${textId(thoughtEntryText(entry))}` });
+    });
+    return { thoughts: merged, thought: composeThought(merged) };
+  }
+
   function cleanRecord(record) {
     if (!record || typeof record !== 'object' || !text(record.id) || !text(record.title)) return null;
     return {
       ...record,
+      ...normalizeThoughts(record),
       id: text(record.id),
       type: text(record.type) || 'text',
       label: typeLabel(text(record.type)||'text'),
@@ -38,7 +113,6 @@
       sourceBody: text(record.sourceBody),
       bodySavedAt: text(record.bodySavedAt),
       bodyMethod: text(record.bodyMethod),
-      thought: text(record.thought),
       applicationIdea: text(record.applicationIdea),
       quote: text(record.quote),
       uncertainty: text(record.uncertainty),
@@ -60,7 +134,7 @@
     if (data.outputs!==undefined && (!Array.isArray(data.outputs) || data.outputs.some(output=>!cleanOutput(output)) || new Set(data.outputs.map(output=>output.id)).size!==data.outputs.length)) throw new Error('잘못되거나 중복된 결과물이 포함돼 가져오기를 중단했어요.');
     const reminderFrequency = ['daily', '3', '1'].includes(String(data.reminderFrequency)) ? String(data.reminderFrequency) : '3';
     const reminderTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(data.reminderTime) ? data.reminderTime : '07:00';
-    return { records, dismissedExampleIds: Array.isArray(data.dismissedExampleIds) ? data.dismissedExampleIds.filter(id=>typeof id==='string') : [], outputs: cleanOutputs(data.outputs), role: text(data.role), resurface: data.resurface !== false, reminderFrequency, reminderTime, analytics: cleanAnalytics(data.analytics) };
+    return { records, dismissedExampleIds: Array.isArray(data.dismissedExampleIds) ? data.dismissedExampleIds.filter(id=>typeof id==='string') : [], outputs: cleanOutputs(data.outputs), role: text(data.role), perspectives: Array.isArray(data.perspectives) ? data.perspectives : [], perspectiveId: text(data.perspectiveId), principles: Array.isArray(data.principles) ? data.principles : [], reflections: data.reflections && typeof data.reflections === 'object' ? data.reflections : {}, resurface: data.resurface !== false, reminderFrequency, reminderTime, analytics: cleanAnalytics(data.analytics) };
   }
 
   function cleanOutput(output) {
@@ -184,7 +258,7 @@
       merged[index] = {
         ...record,
         ...existing,
-        thought: [...new Set([existing.thought, record.thought].filter(Boolean))].join('\n'),
+        ...mergeThoughts(existing, record),
         topics: [...new Set([...(existing.topics || []), ...(record.topics || [])])],
         actions: [...new Set([...(existing.actions || []), ...(record.actions || [])])]
       };
@@ -192,16 +266,45 @@
     return sortRecords(merged);
   }
 
-  const stopWords = new Set(['먼저','다시','기록','생각','내용','사용자','위해','대한','있는','하는','하면','있어요','해요','것을','그리고','하지만','기능','제품']);
-  const words = value => new Set(text(value).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(word => word.length > 1 && !stopWords.has(word)));
+  const stopWords = new Set(['먼저','다시','기록','생각','내용','사용자','위해','대한','있는','하는','하면','있어요','해요','것을','그리고','하지만','기능','제품','같은','같다','좋겠다','좋은','있다','없다','이런','그런','어떤','정말','너무','다른','하나','지금','오늘','이번','통해','때문','정도','경우','이것','그것','보다','어떻게','무엇']);
+  // Drop a trailing Korean particle so '실험을' and '실험부터' match '실험'; the stem stays a prefix of the original text.
+  const particles = ['에서는', '으로는', '부터', '까지', '에서', '으로', '에게', '하고', '처럼', '보다', '은', '는', '이', '가', '을', '를', '도', '만', '의', '에', '로', '와', '과'];
+  const stem = word => { const ending = particles.find(p => word.endsWith(p) && word.length - p.length >= 2); return ending ? word.slice(0, -ending.length) : word; };
+  const words = value => new Set(text(value).toLowerCase().split(/[^\p{L}\p{N}]+/u).map(stem).filter(word => word.length > 1 && !stopWords.has(word)));
+  const particle = (value, batchim, noBatchim) => { const code = value.trim().charCodeAt(value.trim().length - 1); const hasBatchim = code >= 0xac00 && code <= 0xd7a3 && (code - 0xac00) % 28 !== 0; return hasBatchim ? batchim : noBatchim; };
+  const attachParticle = (value, batchim, noBatchim) => `${value}${particle(value, batchim, noBatchim)}`;
 
+  // Returns an exact excerpt (max 40 chars) of the thought around the shared word.
+  function thoughtExcerpt(thought, word, max = 40) {
+    const source = text(thought).replace(/\s+/g, ' ').trim();
+    const at = source.toLowerCase().indexOf(word);
+    if (at < 0) return '';
+    if (source.length <= max) return source;
+    const start = Math.max(0, Math.min(at - Math.floor((max - word.length) / 2), source.length - max));
+    return `${start > 0 ? '…' : ''}${source.slice(start, start + max).trim()}${start + max < source.length ? '…' : ''}`;
+  }
+
+  // Word and topic overlap only: never claims semantic similarity.
   function relatedRecords(record, records) {
     const baseWords = words([record.title, record.summary, record.thought].join(' '));
+    const baseThoughtWords = words(record.thought);
     return records.filter(item => item.id !== record.id).map(item => {
       const sharedTopics = (item.topics || []).filter(topic => (record.topics || []).includes(topic));
-      const sharedWords = [...words([item.title, item.summary, item.thought].join(' '))].filter(word => baseWords.has(word)).slice(0, 3);
-      return { record: item, score: sharedTopics.length * 4 + sharedWords.length, reason: sharedTopics[0] ? `‘${sharedTopics[0]}’ 주제가 이어져요.` : sharedWords[0] ? `‘${sharedWords[0]}’ 생각이 반복돼요.` : '' };
-    }).filter(item => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+      const sharedThoughtWords = [...words(item.thought)].filter(word => baseThoughtWords.has(word)).slice(0, 3);
+      const sharedWords = [...words([item.title, item.summary, item.thought].join(' '))].filter(word => baseWords.has(word) && !sharedThoughtWords.includes(word)).slice(0, 3);
+      const thoughtQuote = sharedThoughtWords[0] ? thoughtExcerpt(item.thought, sharedThoughtWords[0]) : '';
+      const lastWord = sharedWords.slice(0, 2).at(-1) || '';
+      const reason = sharedThoughtWords[0] ? `두 기록 모두 생각에 ‘${sharedThoughtWords[0]}’${particle(sharedThoughtWords[0], '을', '를')} 남겼어요.`
+        : sharedTopics[0] ? `‘${sharedTopics[0]}’ 주제가 이어져요.`
+        : sharedWords[0] ? `제목·요약에 ‘${sharedWords.slice(0, 2).join('’, ‘')}’${particle(lastWord, '이', '가')} 함께 나와요.` : '';
+      return {
+        record: item,
+        score: sharedTopics.length * 4 + sharedThoughtWords.length * 3 + sharedWords.length,
+        reason,
+        evidence: { thoughtWords: sharedThoughtWords, topics: sharedTopics, words: sharedWords, thoughtQuote },
+        isExample: isExample(item)
+      };
+    }).filter(item => item.score > 0 && item.reason).sort((a, b) => b.score - a.score || b.evidence.thoughtWords.length - a.evidence.thoughtWords.length).slice(0, 3);
   }
 
   function toMarkdown(record) {
@@ -222,7 +325,6 @@
     const evidence = evidenceLines.map(value => `- ${value}`).join('\n');
     const intent = purpose || '이 영감을 실제 행동으로 이어가기 위해';
     const view = viewpoint || '기록에서 반복되는 생각을 하나의 방향으로 연결한다.';
-    const attachParticle = (value, batchim, noBatchim) => { const code = value.trim().charCodeAt(value.trim().length - 1); const hasBatchim = code >= 0xac00 && code <= 0xd7a3 && (code - 0xac00) % 28 !== 0; return `${value}${hasBatchim ? batchim : noBatchim}`; };
     const hooks = {
       insight: `${attachParticle(focus, '을', '를')} 다시 보니, 답보다 중요한 질문이 남았습니다.`,
       friendly: `저장만 해둔 ${focus}, 다시 꺼내보니 이런 생각이 남았어요.`,
@@ -242,5 +344,5 @@
     return drafts[type] || drafts.idea;
   }
 
-  return { linkType, typeLabel, sortRecords, validateBackup, mergeRecords, cleanOutputs, mergeOutputs, cleanAnalytics, mergeAnalytics, analyticsSummary, relatedRecords, toMarkdown, buildDraft, isExample, matchesQuery, withExamples, recordProgress };
+  return { words, normalizeThoughts, upsertThought, appendFollowup, revisitedThought, localDay, mergeThoughts, composeThought, linkType, typeLabel, sortRecords, validateBackup, mergeRecords, cleanOutputs, mergeOutputs, cleanAnalytics, mergeAnalytics, analyticsSummary, relatedRecords, toMarkdown, buildDraft, isExample, matchesQuery, withExamples, recordProgress };
 });

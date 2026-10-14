@@ -3,7 +3,7 @@ const contract=require('../frontend/js/insight-contract.js'),helpers=require('..
 const elements=new Map();const $=id=>{if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,dataset:{},setAttribute(){},querySelector(){return {hidden:false,textContent:''}}});return elements.get(id);};
 const record={id:'synthetic',title:'합성 검증',sourceBody:'반복 작업 자동화의 효과를 실제 사용 시간으로 확인합니다. '.repeat(4),thought:'저장한 생각',bodySavedAt:'one'};
 let sent=0,resolveFetch,persisted=0;
-const c={state:{records:[record],currentId:record.id,role:'기획자'},$,renderInsight:()=>{},insightJobs:new Set(),InsightTools:helpers,DataTools:require('../frontend/js/data-tools.js'),MemoiveContract:contract,esc:s=>String(s),INSIGHT_ENDPOINT:'https://test.invalid',AbortController,setTimeout,clearTimeout,fetch:async()=>{sent++;return new Promise(r=>resolveFetch=r)},persist:()=>persisted++,retrySource:()=>{},applyArticle:()=>{},renderAll:()=>{},renderSourceBody:()=>{}};
+const c={state:{records:[record],currentId:record.id,role:'기획자',perspectiveId:'planner',perspectives:[]},PerspectiveTools:require('../frontend/js/perspective-tools.js'),$,renderInsight:()=>{},insightJobs:new Set(),InsightTools:helpers,DataTools:require('../frontend/js/data-tools.js'),MemoiveContract:contract,esc:s=>String(s),INSIGHT_ENDPOINT:'https://test.invalid',AbortController,setTimeout,clearTimeout,fetch:async()=>{sent++;return new Promise(r=>resolveFetch=r)},persist:()=>persisted++,retrySource:()=>{},applyArticle:()=>{},renderAll:()=>{},renderSourceBody:()=>{}};
 vm.createContext(c);vm.runInContext(fs.readFileSync(require.resolve('../frontend/js/insight-context.js'),'utf8'),c);
 (async()=>{
  c.renderInsight(record);assert.equal($('#insight-request').disabled,true);
@@ -25,5 +25,10 @@ vm.createContext(c);vm.runInContext(fs.readFileSync(require.resolve('../frontend
  record.sourceBody='원문 구절입니다. '.repeat(7000);c.renderInsight(record);
  $('#insight-excerpt').value='없는 구절입니다. '.repeat(10);$('#insight-excerpt').oninput();assert.equal($('#insight-request').disabled,true);
  $('#insight-excerpt').value=record.sourceBody.slice(0,100);$('#insight-excerpt').oninput();$('#insight-consent').checked=true;$('#insight-consent').onchange();assert.equal($('#insight-request').disabled,false);
- console.log('PASS no request without body/consent; opt-in context only; changed thought/context revoke consent; stale response rejected; long-source excerpt matches original. Synthetic tests.');
+ // A custom perspective is sent with its base role and shown in the preview; switching to it revokes consent.
+ assert.equal('perspective' in JSON.parse($('#insight-send-preview').textContent),false);
+ c.state.perspectives=[{id:'custom-ux',name:'UX 리서처',prompts:['무엇이 새로웠나'],base:'연구자'}];c.state.perspectiveId='custom-ux';c.state.role='연구자';c.renderInsight(record);
+ assert.deepEqual(JSON.parse($('#insight-send-preview').textContent).perspective,{name:'UX 리서처',prompts:['무엇이 새로웠나'],base:'연구자'});
+ assert.equal($('#insight-consent').checked,false);
+ console.log('PASS no request without body/consent; opt-in context only; changed thought/context revoke consent; stale response rejected; long-source excerpt matches original; custom perspective previewed and sent with its base role. Synthetic tests.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
