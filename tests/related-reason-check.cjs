@@ -44,8 +44,9 @@ assert.equal(DataTools.relatedRecords({ ...base, thought: '' }, [base]).some(ite
 
 // The record view escapes text before marking shared words.
 const app = fs.readFileSync('frontend/js/app.js', 'utf8');
-const esc = app.match(/const esc=.*?;\n/)[0];
-const markWords = app.match(/function markWords\(value,words\)\{.*\}\n/)[0];
+// Line endings depend on the checkout (CRLF on Windows), so match either.
+const esc = app.match(/const esc=.*?;\r?\n/)[0];
+const markWords = app.match(/function markWords\(value,words\)\{.*\}\r?\n/)[0];
 const sandbox = {};
 vm.runInNewContext(esc + markWords + 'out=[markWords("<b>작은 실험</b>",["실험"]),markWords("A&amp B",["amp"]),markWords("그대로",[])];', sandbox);
 assert.equal(sandbox.out[0], '&lt;b&gt;작은 <mark>실험</mark>&lt;/b&gt;');
