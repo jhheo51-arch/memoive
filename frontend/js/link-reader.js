@@ -78,7 +78,17 @@
     const marker = 'Markdown Content:';
     const content = cleanMarkdown(raw.includes(marker) ? raw.split(marker).slice(1).join(marker) : raw);
     if (content.length < 80) throw new Error('본문이 충분하지 않습니다.');
+    if (loginWall(fallbackUrl, content)) throw new Error('로그인이 필요한 페이지라 자동으로 읽지 못했어요. 주소와 메모는 남겨 두었어요. 게시물 캡션이나 본문을 직접 붙여 넣을 수 있어요.');
     return { title, published, content, thumbnailUrl: readerImage(raw, fallbackUrl) };
+  }
+
+  // Social sites answer logged-out readers with a short sign-in page; that page must never be saved as the post.
+  const LOGIN_WALL_HOSTS = ['instagram.com', 'facebook.com', 'threads.net', 'threads.com'];
+  function loginWall(url, content) {
+    let host = '';
+    try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { return false; }
+    if (!LOGIN_WALL_HOSTS.some(h => host === h || host.endsWith(`.${h}`))) return false;
+    return content.length < 1500 && /(log ?in|sign ?up|로그인|가입)/i.test(content) && /(password|비밀번호|create new account|새 계정)/i.test(content);
   }
 
   function youtubeVideoId(value) {
@@ -232,6 +242,7 @@
     htmlText,
     validateHttpUrl,
     parseReaderText,
+    loginWall,
     summarize,
     youtubeVideoId,
     youtubeTranscriptUrls,
