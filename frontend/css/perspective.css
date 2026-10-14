@@ -55,7 +55,8 @@
 #question-preview { max-height: 180px; overflow: auto; margin: 0 0 6px; border-radius: 8px; background: var(--foam); padding: 8px; font-size: .75rem; white-space: pre-wrap; word-break: break-all; }
 #question-preview-details small { color: var(--muted); font-size: .75rem; line-height: 1.5; }
 #question-status { min-height: 1em; margin: 0; color: var(--coffee); font-size: .875rem; }
-#ask-from-record { margin-left: auto; margin-right: 8px; border: 0; background: none; color: var(--coffee); font-size: .8125rem; font-weight: 700; text-decoration: underline; }
+/* Same look as "내 생각 다듬기"; only its position differs. */
+#ask-from-record { margin-left: auto; margin-right: 8px; }
 
 /* Writing feedback in the creator. */
 .writing-feedback { margin: 14px 0; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
