@@ -13,6 +13,8 @@ function selectedInsightContext(record){
   if(draft.output&&draft.outputText.trim())selected.output=draft.outputText;
   return MemoiveContract.context(selected);
 }
+// Custom perspectives travel with their built-in base role; built-ins send nothing extra.
+function insightPerspective(){const p=PerspectiveTools.find(state.perspectiveId,state.perspectives);return p&&!p.builtin&&p.base===state.role?{perspective:{name:p.name,prompts:p.prompts,base:p.base}}:{};}
 function insightBody(record){return record.sourceBody?.length>INSIGHT_BODY_MAX_CHARS?insightDraft(record).excerpt:(record.sourceBody||'');}
 function insightReady(record){const body=insightBody(record);return body.trim().length>=80&&body.length<=INSIGHT_BODY_MAX_CHARS&&(!record.sourceBody||record.sourceBody.includes(body));}
 function renderInsightResult(record){
@@ -65,10 +67,10 @@ renderInsight=function(record){
   $('#context-thought-preview').textContent=record.thought?.length>1000?'내 생각이 1,000자를 넘어요. 보낼 부분만 아래 현재 고민에 적고 선택해 주세요.':record.thought||'아직 남긴 내 생각이 없어요.';
   $('#insight-manual-save').disabled=busy;
   const context=selectedInsightContext(record);
-  const consentScope=JSON.stringify({title:record.title,body,role:state.role,context});
+  const consentScope=JSON.stringify({title:record.title,body,role:state.role,...insightPerspective(),context});
   if(host.dataset.consentScope!==consentScope){host.dataset.consentScope=consentScope;$('#insight-consent').checked=false;}
   if(record.sourceBody?.length>INSIGHT_BODY_MAX_CHARS&&draft.excerpt){$('#insight-body-status').textContent=insightReady(record)?`선택한 본문 ${body.length.toLocaleString()}자를 보냅니다. 원본은 그대로 보관해요.`:'저장한 본문과 일치하는 연속된 부분을 80~60,000자로 붙여 넣어 주세요.';}
-  $('#insight-send-preview').textContent=JSON.stringify({title:record.title,body,role:state.role,context},null,2);
+  $('#insight-send-preview').textContent=JSON.stringify({title:record.title,body,role:state.role,...insightPerspective(),context},null,2);
   $('#insight-status').textContent=!INSIGHT_ENDPOINT?'AI 연결을 확인할 수 없어요. 본문과 내 생각은 계속 보관됩니다.':'제목·선택한 본문·관점과 아래에서 선택한 맥락만 Google Gemini로 보냅니다. 무료 등급에서는 전송 내용이 Google 제품 개선에 사용될 수 있으니 개인정보·비밀 자료는 제외해 주세요.';
   $('#insight-consent-row').hidden=false;
   $('#insight-consent').disabled=!INSIGHT_ENDPOINT||!insightReady(record)||busy;
@@ -81,7 +83,7 @@ requestRecordInsight=async function(){
   const record=state.records.find(r=>r.id===state.currentId);
   if(!record||!insightReady(record)||!INSIGHT_ENDPOINT||!$('#insight-consent').checked||insightJobs.has(record.id))return;
   const id=record.id,role=state.role,stamp=InsightTools.stamp(record),body=insightBody(record),context=selectedInsightContext(record),draft=insightDraft(record);
-  const payload={title:record.title,body,role,context,protocolVersion:2};
+  const payload={title:record.title,body,role,...insightPerspective(),context,protocolVersion:2};
   insightJobs.add(id);$('#insight-feedback').textContent='';renderInsight(record);
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),55000);
   let feedback='',measurement='failed',failureReason='other';

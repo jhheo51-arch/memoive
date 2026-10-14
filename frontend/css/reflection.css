@@ -1,0 +1,78 @@
+/* P2 ⑥ — revisit card actions and the thought timeline. */
+.memory-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.memory-actions button { min-height: 40px; border: 1px solid var(--line); border-radius: 20px; background: none; padding: 0 12px; color: var(--coffee); font-size: .8125rem; }
+.memory-actions [data-memory="followup"] { border-color: var(--espresso); background: var(--espresso); color: #fff; font-weight: 700; }
+#thought-flow { display: grid; gap: 10px; margin-top: 12px; }
+.thought-timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--latte); display: grid; gap: 12px; }
+.thought-timeline li { position: relative; }
+.thought-timeline li::before { content: ""; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--latte); }
+.thought-timeline time { font-size: .8125rem; font-weight: 700; color: var(--coffee); }
+.thought-timeline small { margin-left: 6px; color: var(--muted); font-size: .75rem; }
+.thought-timeline p { margin: 2px 0 0; font: 700 1rem/1.7 'Gowun Batang', serif; word-break: keep-all; white-space: pre-wrap; }
+#followup-form { display: grid; gap: 8px; border-radius: 12px; background: var(--milk); padding: 12px; }
+#followup-form label { display: grid; gap: 2px; font-size: .9375rem; font-weight: 700; }
+#followup-form label small { color: var(--muted); font-size: .8125rem; font-weight: 400; }
+#followup-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: 400 1rem/1.5 'Noto Sans KR', sans-serif; }
+#followup-form div { display: flex; gap: 8px; }
+#followup-form .primary { flex: 1; }
+#followup-cancel { min-height: 44px; border: 1px solid var(--line); border-radius: 11px; background: none; padding: 0 14px; color: var(--coffee); }
+
+/* P2 ⑤ — principles. */
+.principles { margin: 18px 0; }
+.principles .section-head button, .record-principles button { min-height: 40px; border: 1px solid var(--line); border-radius: 20px; background: none; padding: 0 12px; color: var(--coffee); font-size: .8125rem; font-weight: 700; }
+.principles-note, .principle-empty, .report-empty { color: var(--muted); font-size: .875rem; line-height: 1.6; word-break: keep-all; }
+#principle-list { display: grid; gap: 8px; }
+.principle-card { width: 100%; display: grid; gap: 4px; border: 1px solid var(--line); border-radius: 13px; background: var(--milk); padding: 12px 14px; text-align: left; }
+.principle-card strong { font: 700 1rem/1.6 'Gowun Batang', serif; word-break: keep-all; }
+.principle-card small { color: var(--muted); font-size: .8125rem; }
+.principle-card em { font-style: normal; color: var(--amber); font-weight: 700; }
+#principle-form { display: grid; gap: 12px; }
+#principle-form > label { display: grid; gap: 4px; font-size: .875rem; font-weight: 700; }
+#principle-form input, #principle-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 11px; background: #fff; padding: 10px; font: 400 1rem/1.5 'Noto Sans KR', sans-serif; color: var(--ink); }
+.principle-evidence { display: grid; gap: 6px; border: 1px solid var(--line); border-radius: 13px; padding: 12px; }
+.principle-evidence legend { padding: 0 6px; font-size: .8125rem; color: var(--muted); }
+#principle-hint, #principle-status { min-height: 1em; margin: 0; color: var(--coffee); font-size: .8125rem; }
+#principle-records { max-height: 240px; overflow: auto; display: grid; gap: 4px; }
+.principle-record { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-top: 1px solid var(--line); }
+.principle-record input { width: 20px; height: 20px; flex: none; margin-top: 2px; }
+.principle-record span { min-width: 0; }
+.principle-record strong { display: block; font-size: .875rem; }
+.principle-record em { font-style: normal; color: var(--muted); font-weight: 400; }
+.principle-record small, .principle-missing { display: block; color: var(--muted); font-size: .8125rem; overflow-wrap: anywhere; }
+#principle-history ol { margin: 6px 0 0; padding-left: 18px; font-size: .875rem; color: var(--muted); }
+#principle-delete { min-height: 44px; border: 0; background: none; color: var(--red); font-size: .875rem; text-decoration: underline; }
+.record-principles { display: grid; gap: 8px; border-top: 1px solid var(--line); padding: 20px 0; }
+.principle-match { display: flex; gap: 8px; align-items: center; justify-content: space-between; border-radius: 12px; background: var(--foam); padding: 10px 12px; }
+.principle-match p { margin: 0; font-size: .875rem; line-height: 1.6; word-break: keep-all; }
+.principle-match small { display: block; color: var(--muted); }
+
+/* P2 ④ — monthly report. */
+.monthly-report { margin: 0 0 18px; border: 1px solid var(--line); border-radius: 15px; background: var(--milk); padding: 16px; }
+.monthly-report h2 { margin: 0; font: 700 1.125rem/1.5 'Gowun Batang', serif; }
+.monthly-report h3 { margin: 12px 0 4px; font-size: .875rem; }
+#report-month { min-height: 40px; border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 0 8px; font-size: .875rem; }
+.report-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 12px 0; }
+.report-stats span { border-radius: 12px; background: var(--foam); padding: 10px; }
+.report-stats strong { display: block; font: 700 1.25rem 'Gowun Batang', serif; }
+.report-stats small { font-size: .75rem; color: var(--muted); word-break: keep-all; }
+.report-bars ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.report-bars li { display: grid; grid-template-columns: minmax(0, 7em) 1fr 2em; gap: 8px; align-items: center; font-size: .8125rem; }
+.report-bars li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.report-bars li i { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--coffee) var(--share), var(--foam) var(--share)); }
+.report-bars li b { text-align: right; font-weight: 400; color: var(--muted); }
+.report-bias { margin: 12px 0 0; border-radius: 12px; background: var(--foam); padding: 10px 12px; font-size: .875rem; line-height: 1.6; }
+.report-connected { width: 100%; margin-top: 10px; display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 10px 12px; text-align: left; }
+.report-connected small { color: var(--muted); font-size: .75rem; }
+.report-ai { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 4px; display: grid; gap: 8px; }
+.report-ai details summary { min-height: 36px; display: flex; align-items: center; color: var(--coffee); font-size: .8125rem; cursor: pointer; }
+.report-ai pre { max-height: 180px; overflow: auto; border-radius: 8px; background: var(--foam); padding: 8px; font-size: .75rem; white-space: pre-wrap; word-break: break-all; }
+.report-ai small { color: var(--muted); font-size: .75rem; }
+#report-summarize { min-height: 44px; border: 1px solid var(--espresso); border-radius: 12px; background: none; color: var(--espresso); font-weight: 700; }
+#report-summarize:disabled { opacity: .5; }
+#report-status { min-height: 1em; margin: 0; color: var(--coffee); font-size: .875rem; }
+.report-themes { margin: 0; padding-left: 18px; display: grid; gap: 10px; }
+.report-themes strong { display: block; font: 700 1rem/1.6 'Gowun Batang', serif; }
+.report-themes small { display: block; }
+.report-themes button { margin-top: 4px; min-height: 36px; border: 1px solid var(--line); border-radius: 18px; background: none; padding: 0 12px; color: var(--coffee); font-size: .8125rem; }
+.report-explore-title { margin: 6px 0 0; font-size: .8125rem; font-weight: 700; }
+.report-explore { margin: 0; padding-left: 18px; font-size: .875rem; line-height: 1.6; }

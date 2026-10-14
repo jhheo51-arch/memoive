@@ -1,0 +1,18 @@
+/* Related-record evidence: show what overlaps, not just that something does. */
+.related-record > span { min-width: 0; }
+.related-record .related-example { margin-left: 6px; border: 1px solid var(--line); border-radius: 8px; padding: 1px 6px; color: var(--muted); font: 400 .75rem/1.5 'Noto Sans KR', sans-serif; font-style: normal; vertical-align: middle; }
+.related-record > span > small { font-size: .875rem; line-height: 1.6; color: var(--coffee); }
+.related-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.related-chips i { border-radius: 8px; background: var(--foam); padding: 2px 8px; color: var(--ink); font: 400 .75rem/1.6 'Noto Sans KR', sans-serif; font-style: normal; }
+.related-chips i[data-kind="생각"] { background: var(--espresso); color: #fff; }
+.related-quote { display: block; margin-top: 6px; border-left: 2px solid var(--latte); padding-left: 10px; color: var(--muted); font: 400 .875rem/1.6 'Noto Sans KR', sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+.related-quote mark { background: none; color: var(--ink); font-weight: 700; }
+
+/* One-time discovery hints. */
+.discovery-hint { position: fixed; z-index: 110; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(calc(100% - 32px), 390px); border: 1px solid var(--line); border-radius: 15px; background: var(--milk); box-shadow: var(--shadow); padding: 16px; color: var(--ink); font-family: 'Noto Sans KR', sans-serif; }
+.discovery-hint strong { display: block; font: 700 1rem/1.5 'Gowun Batang', serif; }
+.discovery-hint p { margin: 6px 0 12px; color: var(--muted); font-size: .875rem; line-height: 1.6; word-break: keep-all; }
+.discovery-hint div { display: flex; gap: 8px; }
+.discovery-hint button { min-height: 44px; border: 1px solid var(--line); border-radius: 11px; background: none; padding: 0 14px; color: var(--coffee); font-size: .875rem; font-weight: 700; }
+.discovery-hint [data-hint-accept] { border-color: var(--espresso); background: var(--espresso); color: #fff; }
+.hint-replay { min-height: 44px; margin-top: 8px; border: 1px solid var(--line); border-radius: 11px; background: none; padding: 0 14px; color: var(--coffee); font-size: .875rem; }

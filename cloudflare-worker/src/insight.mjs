@@ -1,4 +1,5 @@
 import '../../frontend/js/insight-contract.js';
+import { validPerspective } from './coach.mjs';
 const MAX_BODY_CHARS=60000;
 const MAX_REQUEST_BYTES=250000;
 // Not enabled until the owner supplies a key, verified model and rate-limit binding.
@@ -19,6 +20,9 @@ export async function insight(request, env, headers={}) {
   try{if(!(await env.AI_RATE_LIMITER.limit({key:'memoive-record-insight'})).success)return reply({message:'요청이 많아요. 잠시 후 다시 시도해 주세요.'},429);}catch{return reply({message:'사용량 보호 설정을 확인할 때까지 AI 요청을 멈췄어요.'},503);}
   let context;
   try{context=globalThis.MemoiveContract.context(input.context);}catch(error){return reply({message:error.message},400);}
+  // Optional custom perspective; `role` stays the built-in base the prompt rules know.
+  let perspective=null;
+  if(input.perspective!==undefined){try{perspective=validPerspective(input.perspective);}catch(error){return reply({message:error.message},400);}if(perspective.base!==input.role)return reply({message:'관점 정보를 확인해 주세요.'},400);}
   // Have the model select source IDs; never ask it to retype verbatim quotes.
   const sourceText=[input.title.trim(),input.body.trim()].filter(Boolean).join('\n');
   const passages=[];
@@ -41,6 +45,7 @@ export async function insight(request, env, headers={}) {
     'unknowns: 원문·사용자 맥락에서 확인할 수 없는 중요한 정보 1~3개, 항목당 240자 이하. clarification: 적용 방향을 정하기 위해 사용자에게 필요한 구체적 질문 하나, 180자 이하.',
     'context는 사용자가 선택한 thought(저장 이유/내 생각), concern(현재 고민), output(원하는 결과물)만 있다. 없는 항목은 모르는 것이다. 직장·고객·경험·감정·목표를 추정하거나 1인칭 사용자 의견을 대신 만들지 않는다.',
     'context가 없으면 개인화했다고 말하지 말고 조건부 일반 적용 예시를 제시하고 clarification으로 실제 맥락을 묻는다. 사용자 맥락을 원문 사실로 섞지 않는다.',
+    'perspective가 있으면 사용자가 직접 만든 관점의 이름과 생각 소제목이다. role의 초점을 기본으로 하되 question과 clarification은 이 관점의 이름과 소제목에 맞춘다. 관점 이름으로 사용자의 직업·경험을 추정하지 않는다.',
     '기획자는 문제와 작은 실험, 마케터는 대상과 메시지 비교, 연구자는 근거와 반례, 일상 기록자는 현실적인 작은 행동에 초점. 새로운 사실이 없으면 원문에서 확인되지 않음이라고 쓴다.',
     '좋은 제안 예: 저장 뒤 행동 선택이 어렵다는 고민이라면 기록 상세의 버튼 설명을 바꾼 뒤 찾는 데 걸린 시간과 망설인 지점을 남긴다. 이 예시를 다른 원문에 그대로 반복하지 않는다.',
     '본문 일부만 제공될 수 있다. 그 범위 밖 전체 글을 읽었다고 주장하지 않는다. 외부 게시·실행은 하지 않는다. 지정 JSON만 반환한다.',
@@ -50,7 +55,7 @@ export async function insight(request, env, headers={}) {
   try{
     const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(env.GEMINI_MODEL)+':generateContent',{
       method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
-      body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:JSON.stringify({title:input.title,sourcePassages:passages.map((text,sourceId)=>({sourceId,text})),role:input.role,context})}]}],generationConfig:{temperature:0.3,maxOutputTokens:5000,responseMimeType:'application/json',responseJsonSchema:schema}})
+      body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:JSON.stringify({title:input.title,sourcePassages:passages.map((text,sourceId)=>({sourceId,text})),role:input.role,...(perspective?{perspective}:{}),context})}]}],generationConfig:{temperature:0.3,maxOutputTokens:5000,responseMimeType:'application/json',responseJsonSchema:schema}})
     });
     if(!response.ok)return reply({providerStatus:response.status,message:response.status===429?'Gemini 사용 한도에 도달했어요. 기존 기록은 그대로예요.':'AI 응답을 받지 못했어요. 기본 질문을 이용해 주세요.'},response.status===429?429:502);
     const data=await response.json(),candidate=data.candidates?.[0];

@@ -1,0 +1,69 @@
+/* Perspective manager in settings. */
+.perspective-manager { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.perspective-manager h3 { margin: 0; font: 700 1rem/1.5 'Gowun Batang', serif; }
+.perspective-note, .perspective-manager small { display: block; color: var(--muted); font-size: .8125rem; line-height: 1.6; word-break: keep-all; }
+#custom-perspectives { list-style: none; margin: 8px 0; padding: 0; }
+#custom-perspectives li { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); padding: 8px 0; }
+#custom-perspectives li > span { flex: 1; min-width: 0; }
+#custom-perspectives strong { display: block; font-size: .9375rem; }
+#custom-perspectives li button, .perspective-form-actions button:not(.primary) { min-height: 44px; border: 1px solid var(--line); border-radius: 11px; background: none; padding: 0 12px; color: var(--coffee); font-size: .8125rem; }
+#custom-perspectives .perspective-empty { color: var(--muted); font-size: .875rem; }
+#perspective-editor summary { min-height: 44px; display: flex; align-items: center; color: var(--coffee); font-size: .9375rem; font-weight: 700; cursor: pointer; }
+#perspective-form { display: grid; gap: 10px; }
+#perspective-form label { display: grid; gap: 4px; font-size: .875rem; font-weight: 700; }
+#perspective-form input, #perspective-form textarea, #perspective-form select { width: 100%; border: 1px solid var(--line); border-radius: 11px; background: var(--milk); padding: 10px; font: 400 1rem/1.5 'Noto Sans KR', sans-serif; color: var(--ink); }
+#perspective-form-status { min-height: 1em; margin: 0; color: var(--red); font-size: .875rem; }
+.perspective-form-actions { display: flex; gap: 8px; }
+.perspective-form-actions .primary { flex: 1; }
+
+/* Thought sheet: perspective chips and optional template fields. */
+.thought-perspectives { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.thought-perspectives button { min-height: 40px; border: 1px solid var(--line); border-radius: 20px; background: none; padding: 0 14px; color: var(--coffee); font-size: .875rem; }
+.thought-perspectives button.active { border-color: var(--espresso); background: var(--espresso); color: #fff; }
+.thought-template { display: grid; gap: 8px; margin: 10px 0 12px; border: 1px solid var(--line); border-radius: 13px; padding: 12px; }
+.thought-template legend { padding: 0 6px; color: var(--muted); font-size: .8125rem; }
+.thought-template label { display: grid; gap: 4px; font-size: .875rem; font-weight: 700; color: var(--coffee); }
+.thought-template textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--milk); padding: 8px 10px; font: 400 1rem/1.5 'Noto Sans KR', sans-serif; color: var(--ink); resize: vertical; }
+
+/* Record detail: thoughts by perspective. */
+#detail-thought-perspective { margin-left: 8px; color: var(--muted); font-size: .8125rem; }
+.my-thought header { align-items: center; }
+#detail-thought-entries { display: grid; gap: 10px; }
+#detail-thought-entries.thought-compare { gap: 12px; }
+.thought-entry { border-radius: 12px; background: var(--milk); padding: 12px 14px; }
+.thought-entry header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.thought-entry header b { font-size: .8125rem; color: var(--coffee); }
+.thought-entry header button { min-height: 36px; border: 0; background: none; color: var(--coffee); font-size: .8125rem; text-decoration: underline; }
+.thought-entry p, .thought-entry dd { margin: 0; font: 700 1rem/1.7 'Gowun Batang', serif; word-break: keep-all; overflow-wrap: anywhere; white-space: pre-wrap; }
+.thought-entry dl { margin: 8px 0 0; }
+.thought-entry dt { color: var(--muted); font-size: .8125rem; }
+.thought-add { min-height: 44px; border: 1px dashed var(--latte); border-radius: 12px; background: none; color: var(--coffee); font-size: .875rem; }
+@media (min-width: 720px) { #detail-thought-entries.thought-compare { grid-template-columns: repeat(2, minmax(0, 1fr)); } #detail-thought-entries.thought-compare > .eyebrow, #detail-thought-entries.thought-compare > .thought-add { grid-column: 1 / -1; } }
+
+/* Question coach in the thought sheet. */
+.thought-questions { display: grid; gap: 8px; margin: 0 0 12px; border: 1px solid var(--latte); border-radius: 13px; padding: 12px; }
+.thought-questions legend { padding: 0 6px; color: var(--muted); font-size: .8125rem; }
+.thought-questions label { display: grid; gap: 4px; font-size: .9375rem; font-weight: 700; color: var(--ink); line-height: 1.5; word-break: keep-all; }
+.thought-questions textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--milk); padding: 8px 10px; font: 400 1rem/1.5 'Noto Sans KR', sans-serif; color: var(--ink); resize: vertical; }
+.question-mark { color: var(--amber); font-weight: 700; }
+.question-coach { display: grid; gap: 8px; margin: 0 0 12px; }
+.question-coach #ask-question { min-height: 44px; border: 1px solid var(--espresso); border-radius: 12px; background: none; color: var(--espresso); font-size: .9375rem; font-weight: 700; }
+.question-coach #ask-question:disabled { opacity: .5; }
+.question-consent { display: flex; align-items: flex-start; gap: 8px; font-size: .875rem; line-height: 1.5; }
+.question-consent input { width: 20px; height: 20px; flex: none; }
+#question-preview-details summary { min-height: 36px; display: flex; align-items: center; color: var(--coffee); font-size: .8125rem; cursor: pointer; }
+#question-preview { max-height: 180px; overflow: auto; margin: 0 0 6px; border-radius: 8px; background: var(--foam); padding: 8px; font-size: .75rem; white-space: pre-wrap; word-break: break-all; }
+#question-preview-details small { color: var(--muted); font-size: .75rem; line-height: 1.5; }
+#question-status { min-height: 1em; margin: 0; color: var(--coffee); font-size: .875rem; }
+#ask-from-record { margin-left: auto; margin-right: 8px; border: 0; background: none; color: var(--coffee); font-size: .8125rem; font-weight: 700; text-decoration: underline; }
+
+/* Writing feedback in the creator. */
+.writing-feedback { margin: 14px 0; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.writing-feedback h3 { margin: 0; font: 700 1rem/1.5 'Gowun Batang', serif; }
+.writing-feedback > p { margin: 4px 0 10px; color: var(--muted); font-size: .875rem; line-height: 1.6; word-break: keep-all; }
+.writing-feedback button { width: 100%; min-height: 44px; }
+#writing-feedback-status { min-height: 1em; color: var(--coffee); }
+#writing-feedback-result dl { margin: 10px 0 6px; }
+#writing-feedback-result dt { margin-top: 10px; color: var(--coffee); font-size: .8125rem; font-weight: 700; }
+#writing-feedback-result dd { margin: 2px 0 0; font-size: .9375rem; line-height: 1.7; word-break: keep-all; }
+#writing-feedback-result small { color: var(--muted); font-size: .75rem; }
