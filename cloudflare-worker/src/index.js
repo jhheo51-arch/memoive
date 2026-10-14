@@ -1,4 +1,5 @@
 import { insight } from './insight.mjs';
+import { question, feedback, reflection } from './coach.mjs';
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
 
 function json(data, status = 200, extraHeaders = {}) {
@@ -114,10 +115,12 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const ready = env.AI_RECORDS_ENABLED === 'true' && !!env.GEMINI_API_KEY && !!env.GEMINI_MODEL && !!env.AI_RATE_LIMITER?.limit;
-    if (url.pathname === '/health') return json({ ok: true, ready, model: env.GEMINI_MODEL || null, insightProtocol: 2 });
+    if (url.pathname === '/health') return json({ ok: true, ready, model: env.GEMINI_MODEL || null, insightProtocol: 2, coaching: ['question', 'feedback', 'reflection'] });
     const origin = allowedOrigin(request, env);
     if (request.method === 'OPTIONS') return origin ? new Response(null, { status: 204, headers: cors(origin) }) : json({ message: '허용되지 않은 사이트예요.' }, 403);
     if(url.pathname==='/v1/insight'&&request.method==='POST')return origin?insight(request,env,cors(origin)):json({message:'허용되지 않은 사이트예요.'},403);
+    const coaching={'/v1/question':question,'/v1/feedback':feedback,'/v1/reflection':reflection}[url.pathname];
+    if(coaching&&request.method==='POST')return origin?coaching(request,env,cors(origin)):json({message:'허용되지 않은 사이트예요.'},403);
     if (url.pathname !== '/v1/refine' || request.method !== 'POST') return json({ message: '요청 경로를 확인해 주세요.' }, 404, cors(origin));
     if (!origin) return json({ message: '허용되지 않은 사이트예요.' }, 403);
     if (!ready) return json({ message: 'Gemini 연결과 사용량 보호 설정이 필요해요.' }, 503, cors(origin));
