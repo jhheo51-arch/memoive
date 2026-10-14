@@ -53,6 +53,8 @@ assert.equal(sandbox.out[0], '&lt;b&gt;작은 <mark>실험</mark>&lt;/b&gt;');
 assert.equal(sandbox.out[1], 'A&amp;<mark>amp</mark> B');
 assert.equal(sandbox.out[2], '그대로');
 assert.ok(app.includes('의미가 비슷한지는 판단하지 않아요'), 'the panel states that matching is word-based');
+// The source record must be read before the click opens the next record (capture phase).
+assert.ok(app.includes("$('#related-records').addEventListener('click',") && app.includes("track('related_opened',{recordId:opened.dataset.recordId,value:state.currentId})},true);"), 'related opens are tracked in the capture phase with the source record');
 
 const html = fs.readFileSync('index.html', 'utf8'), sw = fs.readFileSync('sw.js', 'utf8');
 for (const asset of ['./frontend/js/discovery-hints.js?v=77-related-why', './frontend/css/discovery.css?v=77-related-why']) {
