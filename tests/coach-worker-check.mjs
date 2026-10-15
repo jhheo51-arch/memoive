@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import worker from '../cloudflare-worker/src/index.js';
-import { question, feedback, reflection, questionProblem, vagueAnswer } from '../cloudflare-worker/src/coach.mjs';
+import { question, feedback, reflection, questionProblem, vagueAnswer, reflectionProblem } from '../cloudflare-worker/src/coach.mjs';
 import { insight } from '../cloudflare-worker/src/insight.mjs';
 
 const env = { AI_RECORDS_ENABLED: 'true', GEMINI_API_KEY: 'test-only', GEMINI_MODEL: 'test-model', AI_RATE_LIMITER: { limit: async () => ({ success: true }) } };
@@ -118,6 +118,22 @@ try {
   assert.equal((await reflection(post('/v1/reflection', { ...month, records: [{ title: 'A', thought: '' }, { title: 'B', thought: 'x' }] }), env)).status, 400, 'records without a thought are not accepted');
   answer = { themes: [{ theme: '근거 하나', records: [0] }], explore: [] };
   assert.equal((await reflection(post('/v1/reflection', month), env)).status, 502, 'a summary without a two-record theme is rejected');
+  // A theme that sweeps in most records is retried once with the reason.
+  const five = { month: '2026-09', records: ['작게 실험하자', '실험 단위를 줄이자', '고객을 좁히자', '인터뷰 질문을 좁히자', '전시 동선이 흥미롭다'].map((thought, i) => ({ title: `기록 ${i}`, thought })) };
+  const reflectionReplies = [
+    { themes: [{ theme: '좁히고 작게 하기', records: [0, 1, 2, 3, 4] }], explore: ['A'] },
+    { themes: [{ theme: '작게 실험하기', records: [0, 1] }, { theme: '고객 좁히기', records: [2, 3] }], explore: ['A'] }
+  ];
+  const reflectionSystems = [];
+  globalThis.fetch = async (_url, options) => { const body = JSON.parse(options.body); reflectionSystems.push(body.systemInstruction.parts[0].text); return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(reflectionReplies.shift()) }] } }] })); };
+  r = await reflection(post('/v1/reflection', five), env);
+  assert.deepEqual((await r.json()).themes.map(t => t.records), [[0, 1], [2, 3]]);
+  assert.equal(reflectionSystems.length, 2);
+  assert.match(reflectionSystems[1], /한 주제가 기록 대부분을 덮었다/);
+  assert.match(reflectionSystems[0], /서로 다른 생각은 다른 주제로 나눈다/);
+  assert.equal(reflectionProblem({ themes: [{ records: [0, 1, 2, 3] }] }, five), '한 주제가 기록 대부분을 덮었다. 서로 다른 생각은 나누고, 맞지 않는 기록은 빼라.');
+  assert.equal(reflectionProblem({ themes: [{ records: [0, 1, 2] }] }, { records: [1, 2, 3] }), '', 'small months are not judged by coverage');
+  globalThis.fetch = async (_url, options) => { sent = JSON.parse(options.body); return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(answer) }] } }] })); };
 
   // Insight accepts a custom perspective only alongside its matching built-in role.
   const body = '반복 작업 자동화의 효과를 실제 사용 시간으로 확인합니다. '.repeat(4);
