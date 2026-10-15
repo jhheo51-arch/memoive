@@ -8,7 +8,8 @@
   <label class="question-consent"${ENDPOINT?'':' hidden'}><input type="checkbox" id="question-consent"><span>AI에게 이 자료에 맞는 질문 받기 · Gemini로 전송</span></label>
   <details id="question-preview-details"${ENDPOINT?'':' hidden'}><summary>보낼 내용 보기</summary><pre id="question-preview"></pre><small>제목, 자료 앞부분 최대 6,000자, 관점, 내 생각 한 줄, 앞 질문과 내 답을 보냅니다. 무료 등급에서는 전송 내용이 Google 제품 개선에 사용될 수 있어요. 개인정보·비밀 자료는 보내지 마세요.</small></details>
   <p id="question-status" role="status" aria-live="polite"></p>`;
-  $('#save-thought').before(box);
+  // Right under the answered questions and above the free line, so asking is visible when the sheet opens.
+  $('#thought-input').before(box);
   const askButton=$('#ask-question'),consent=$('#question-consent'),status=$('#question-status');
   let consentScope='',busy=false;
 
@@ -69,9 +70,28 @@
   }
   askButton.onclick=askQuestion;
 
-  // Entry point on the record itself: open the sheet and ask right away.
-  const ask=document.createElement('button');
-  ask.type='button';ask.id='ask-from-record';ask.textContent='질문 받기';
-  $('#edit-thought').before(ask);
-  ask.onclick=()=>{openThought(state.currentId);askQuestion();};
+  // One way in from the record: its own question becomes the first question in the sheet.
+  function answerRecordQuestion(){
+    const id=state.currentId;openThought(id);
+    const context=sheetApi.current();if(!context)return;
+    if(context.questions.length)return;
+    const recordQuestion=$('#detail-question').textContent.trim();
+    if(!recordQuestion)return askQuestion();
+    sheetApi.addQuestion(recordQuestion,'question');
+    track('question_shown',{recordId:id,type:context.record.type,value:'record'});
+  }
+  const answer=$('#answer-question');
+  answer.textContent='이 질문에 답하며 생각 남기기';
+  answer.onclick=answerRecordQuestion;
+  // Records without a thought also offer it under the title, so it is visible right after saving.
+  const heroButton=document.createElement('button');
+  heroButton.type='button';heroButton.id='hero-thought-cta';heroButton.textContent='질문에 답하며 내 생각 남기기';heroButton.hidden=true;
+  $('#detail-tags').after(heroButton);
+  heroButton.onclick=answerRecordQuestion;
+  const originalOpenRecord=openRecord;
+  openRecord=function(id,options){
+    originalOpenRecord(id,options);
+    const record=state.records.find(r=>r.id===id);
+    heroButton.hidden=!record||!!record.thought?.trim();
+  };
 })();

@@ -44,6 +44,7 @@
     manager.querySelectorAll('[data-delete-perspective]').forEach(button=>button.onclick=()=>deletePerspective(button.dataset.deletePerspective));
     $('#perspective-editor summary').textContent=custom.length>=P.MAX_CUSTOM&&!editingId?`내 관점은 ${P.MAX_CUSTOM}개까지 만들 수 있어요`:editingId?'관점 고치기':'+ 내 관점 만들기';
     $('#profile-initial').textContent=selected.name[0];
+    $('#open-profile').setAttribute('aria-label',`관점과 설정 열기, 현재 ${selected.label}`);
   }
   function resetForm(){editingId='';$('#perspective-form').reset();$('#perspective-form-status').textContent='';$('#perspective-save').textContent='관점 저장';}
   function startEdit(id){
@@ -74,17 +75,20 @@
   };
   $('#perspective-cancel').onclick=()=>{resetForm();$('#perspective-editor').open=false;renderPerspectiveSettings();};
 
-  /* Thought sheet: one free line first, then the perspective's template as optional fields. */
+  /* Thought sheet: perspective chips, answered questions, the free line, then the template as optional fields.
+     Questions come first so asking is visible without scrolling past the template. */
   const sheet=$('#thought-sheet'),freeInput=$('#thought-input');
   const chips=document.createElement('div');
   chips.className='thought-perspectives';chips.setAttribute('role','group');chips.setAttribute('aria-label','어떤 관점의 생각인가요?');
   $('#thought-question').before(chips);
+  // The fixed question is now asked through the question list, so the separate box is not shown.
+  $('#thought-question').hidden=true;
   const template=document.createElement('fieldset');
   template.className='thought-template';
   freeInput.after(template);
   const questions=document.createElement('fieldset');
   questions.className='thought-questions';
-  template.after(questions);
+  freeInput.before(questions);
   freeInput.placeholder='한 문장이면 충분해요.';
   freeInput.setAttribute('aria-label','내 생각 한 줄');
   let session=null;

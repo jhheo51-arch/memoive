@@ -55,8 +55,11 @@
 #question-preview { max-height: 180px; overflow: auto; margin: 0 0 6px; border-radius: 8px; background: var(--foam); padding: 8px; font-size: .75rem; white-space: pre-wrap; word-break: break-all; }
 #question-preview-details small { color: var(--muted); font-size: .75rem; line-height: 1.5; }
 #question-status { min-height: 1em; margin: 0; color: var(--coffee); font-size: .875rem; }
-/* Same look as "내 생각 다듬기"; only its position differs. */
-#ask-from-record { margin-left: auto; margin-right: 8px; }
+/* Entry under the record title when there is no thought yet. */
+#hero-thought-cta { display: block; min-height: 44px; margin-top: 14px; border: 0; border-radius: 22px; background: var(--milk); padding: 0 18px; color: var(--espresso); font-size: .9375rem; font-weight: 700; }
+#hero-thought-cta[hidden] { display: none; }
+/* The avatar only shows an initial, so name what it opens. */
+.profile-button::after { content: "관점"; position: absolute; left: 50%; bottom: -15px; transform: translateX(-50%); color: var(--coffee); font: 700 .625rem/1 'Noto Sans KR', sans-serif; white-space: nowrap; }
 
 /* Writing feedback in the creator. */
 .writing-feedback { margin: 14px 0; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
