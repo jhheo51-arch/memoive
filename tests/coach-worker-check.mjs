@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import worker from '../cloudflare-worker/src/index.js';
-import { question, feedback, reflection } from '../cloudflare-worker/src/coach.mjs';
+import { question, feedback, reflection, questionProblem, vagueAnswer } from '../cloudflare-worker/src/coach.mjs';
 import { insight } from '../cloudflare-worker/src/insight.mjs';
 
 const env = { AI_RECORDS_ENABLED: 'true', GEMINI_API_KEY: 'test-only', GEMINI_MODEL: 'test-model', AI_RATE_LIMITER: { limit: async () => ({ success: true }) } };
@@ -40,10 +40,54 @@ try {
   assert.match(system, /신뢰할 수 없는 자료/);
   assert.match(system, /추정해 전제로 삼지 않는다/);
   assert.match(system, /답의 예시는 쓰지 않는다/);
-  assert.match(system, /막연하면 구체적인/);
+  assert.match(system, /lastAnswerVague가 true이면/);
+  assert.match(system, /앞서 세운 가설을/, 'presumptive phrasing is named as forbidden');
   assert.deepEqual(sent.generationConfig.responseJsonSchema.required, ['question']);
   answer = { question: '짧' };
   assert.equal((await question(post('/v1/question', ask), env)).status, 502, 'too-short questions are rejected');
+
+  // Questions must not assume plans or work the person never mentioned; one retry, then fail.
+  const replies = [];
+  const sentSystems = [];
+  globalThis.fetch = async (_url, options) => { const body = JSON.parse(options.body); sent = body; sentSystems.push(body.systemInstruction.parts[0].text); return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ question: replies.shift() }) }] } }] })); };
+  replies.push('앞서 세운 가설을 검증하려면 무엇부터 해볼 건가요?', '만약 이 사례처럼 바꿀 수 없는 제약이 있다면 무엇부터 적어 보겠어요?');
+  r = await question(post('/v1/question', ask), env);
+  assert.equal(r.status, 200);
+  assert.equal((await r.json()).question, '만약 이 사례처럼 바꿀 수 없는 제약이 있다면 무엇부터 적어 보겠어요?', 'a presumptive question is retried once');
+  assert.equal(sentSystems.length, 2);
+  assert.match(sentSystems[1], /직전 응답이 규칙을 어겼다: 사용자가 말하지 않은/);
+  replies.push('현재 기획 중이신 기능에서는 무엇을 바꾸실 건가요?', '하신 것처럼 오피스 맵을 연동하면 무엇이 달라질까요?');
+  assert.equal((await question(post('/v1/question', ask), env)).status, 502, 'still presumptive after the retry: the app falls back to a default question');
+  replies.push('이 방식을 곧바로 적용해 볼 수 있습니까?', '이 방식을 적용한다면 어떤 화면부터 바꾸겠어요?');
+  assert.equal((await (await question(post('/v1/question', ask), env)).json()).question, '이 방식을 적용한다면 어떤 화면부터 바꾸겠어요?', 'yes/no questions are retried');
+  // A vague last answer is flagged and the follow-up must ask for the concrete reason.
+  sentSystems.length = 0;
+  replies.push('이 사례에서 다음으로 해볼 작은 실험은 무엇인가요?', '좋다고 느낀 건 이 사례의 어느 장면 때문인가요?');
+  r = await question(post('/v1/question', { ...ask, turns: [{ question: '무엇이 새로웠나요?', answer: '좋은 사례인 것 같다' }] }), env);
+  assert.equal(JSON.parse(sent.contents[0].parts[0].text).lastAnswerVague, true);
+  assert.equal((await r.json()).question, '좋다고 느낀 건 이 사례의 어느 장면 때문인가요?');
+  assert.equal(sentSystems.length, 2, 'a follow-up that ignores a vague answer is retried');
+  sentSystems.length = 0;
+  replies.push('이 제약이 없다면 어떤 실험을 먼저 하겠어요?');
+  r = await question(post('/v1/question', { ...ask, turns: [{ question: '무엇이 새로웠나요?', answer: '은행 화면은 못 바꾸니 앱 안의 선택 흐름만 바꿨다는 점' }] }), env);
+  assert.equal(JSON.parse(sent.contents[0].parts[0].text).lastAnswerVague, false);
+  assert.equal(r.status, 200);
+  assert.equal(sentSystems.length, 1, 'concrete answers need no retry');
+  replies.push('이 제약이 없다면 어떤 실험을 먼저 하겠어요');
+  assert.equal((await (await question(post('/v1/question', ask), env)).json()).question, '이 제약이 없다면 어떤 실험을 먼저 하겠어요?', 'a missing question mark is added');
+  assert.equal(questionProblem('이 자료에서 가장 먼저 풀어야 할 문제는 무엇인가요?'), '', 'open "무엇인가요" questions pass');
+  assert.ok(questionProblem('사내 회의봇을 처음 기획할 때 어떤 가설을 세우고 개발을 시작하셨습니까?'), 'author actions are not asked back as the person own');
+  assert.ok(questionProblem('봇을 만들기로 결심했을 때 어떤 불편이 가장 컸나요?'));
+  assert.ok(questionProblem('북극성 지표로 월 반납 건수를 설정하셨을 때 발견하신 가장 중요한 문제는 무엇인가요?'), 'honorific past actions of the author are flagged, whatever the verb');
+  assert.equal(questionProblem('좋다고 느끼신 이유는 자료의 어떤 장면 때문인가요?'), '', 'reactions to reading are allowed');
+  assert.equal(questionProblem('만약 새 미션을 설계하신다면 어떤 심리를 활용해 보고 싶으세요?'), '', 'hypothetical honorifics are allowed');
+  assert.equal(questionProblem('만약 회의봇을 만든다면 어떤 불편부터 풀어 보겠어요?'), '', 'hypothetical framing passes');
+  assert.equal(questionProblem('그렇게 느낀 건 자료의 어떤 장면 때문인가요?', { lastAnswerVague: true }), '');
+  assert.equal(vagueAnswer('흥미롭다'), true);
+  assert.equal(vagueAnswer('제약을 먼저 적는 점'), false, 'short Korean answers can still be specific');
+  assert.equal(vagueAnswer('글쎄'), true);
+  assert.equal(vagueAnswer('은행 화면을 바꿀 수 없다는 제약 때문에 앱 안의 흐름만 바꾼 점이 인상적이었다'), false, 'long, specific answers are not vague even with evaluative words');
+  globalThis.fetch = async (_url, options) => { sent = JSON.parse(options.body); return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(answer) }] } }] })); };
 
   // Feedback comments only; it never returns rewritten text.
   answer = { claim: '주장은 분명합니다.', evidence: '“토스 사례”는 기록 요약과 연결됩니다.', separation: '출처 표시가 필요합니다.', counterpoint: '제약이 없는 팀이라면?' };
