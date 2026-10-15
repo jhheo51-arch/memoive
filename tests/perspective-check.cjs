@@ -97,6 +97,6 @@ assert.ok(ui.includes('state.role=p.base'), 'AI requests keep using a role the s
 const html = fs.readFileSync('index.html', 'utf8'), sw = fs.readFileSync('sw.js', 'utf8');
 assert.ok(html.indexOf('perspective-tools.js') < html.indexOf('frontend/js/app.js'), 'perspective tools load before app state is built');
 assert.ok(html.indexOf('perspective-ui.js') > html.indexOf('detail-navigation.js'));
-for (const asset of ['./frontend/js/perspective-tools.js?v=79-coaching', './frontend/js/perspective-ui.js?v=80-reflection', './frontend/css/perspective.css?v=82-polish']) assert.ok(sw.includes(`'${asset}'`), `${asset} is cached`);
+for (const asset of ['./frontend/js/perspective-tools.js?v=79-coaching', './frontend/js/perspective-ui.js?v=84-entry', './frontend/css/perspective.css?v=84-entry']) assert.ok(sw.includes(`'${asset}'`), `${asset} is cached`);
 
 console.log('PASS: custom perspectives validate and cap, templates stay out of plain thoughts, legacy thoughts survive normalization, backup, merge and sync. Synthetic fixtures only.');
