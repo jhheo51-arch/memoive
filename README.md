@@ -1,5 +1,7 @@
 # MEMOIVE
 
+**처음 읽는 분께:** [저장한 기록을 다시 쓰게 만들기까지](docs/CASE-RETURN-TO-RECORD.md)에서 시연 의견 16건을 읽고 문제와 지표를 바꾼 이유, 구현 화면, 아직 확인하지 못한 사용 효과를 볼 수 있습니다.
+
 저장한 자료에 남긴 **내 생각이 시간이 지나 다시 나에게 돌아오고**, 쌓인 생각이 원칙과 글로 이어지게 하는 개인 기록 서비스입니다.
 
 [서비스 사용하기](https://memoive.vercel.app/) | [제품 기획서 v2.0](docs/PRD_MEMOIVE_2026-10-14-v2.0.md) | [이전 기획서 v1.3](docs/PRD_MEMOIVE_2026-10-06-v01.md) | [검증 기록](docs/verification.md) | [문서 안내](docs/README-DETAILS.md)
